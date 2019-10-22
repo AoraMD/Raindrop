@@ -1,0 +1,3 @@
+[submodule "lookinglass"]
+	path = lookinglass
+	url = https://github.com/AoraMD/LookingGlass.git

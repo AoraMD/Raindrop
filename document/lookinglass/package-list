@@ -1,6 +1,0 @@
-$dokka.format:html
-$dokka.linkExtension:html
-
-moe.aoramd.lookinglass.lifecycle
-moe.aoramd.lookinglass.log
-moe.aoramd.lookinglass.manager
