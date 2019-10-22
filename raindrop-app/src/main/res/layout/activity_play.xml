@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="adapter"
+            type="moe.aoramd.raindrop.adapter.list.PlayPlayingAdapter" />
+
+        <variable
+            name="layoutManager"
+            type="androidx.recyclerview.widget.RecyclerView.LayoutManager" />
+
+        <variable
+            name="viewModel"
+            type="moe.aoramd.raindrop.view.play.PlayViewModel" />
+    </data>
+
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        app:showPanel="@={viewModel.showPlayingList}"
+        app:umanoPanelHeight="0dp"
+        app:umanoScrollableView="@id/list">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- blur background -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:blurImageUrl="@{viewModel.imageUrl}"
+                tools:ignore="ContentDescription" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginEnd="48dp"
+                    app:cardElevation="2dp">
+
+                    <moe.aoramd.raindrop.widget.SquareFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:imageUrl="@{viewModel.imageUrl}"
+                            app:loadUrlCallback="@{viewModel::loadCoverCallback}"
+                            tools:ignore="ContentDescription" />
+
+                    </moe.aoramd.raindrop.widget.SquareFrameLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="36dp"
+                    android:layout_marginTop="48dp"
+                    android:layout_marginEnd="36dp"
+                    android:layout_marginBottom="48dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5">
+
+                            <!-- controller -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:fadeVisible="@{viewModel.showProgressBar ? View.GONE : View.VISIBLE}">
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:background="?selectableItemBackground"
+                                    android:src="@drawable/ic_loop"
+                                    android:tint="@{viewModel.uiColor}"
+                                    tools:ignore="ContentDescription" />
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:background="?selectableItemBackground"
+                                    android:onClick="@{() -> viewModel.onClickSkipToPrevious()}"
+                                    android:src="@drawable/ic_skip_previous"
+                                    android:tint="@{viewModel.uiColor}"
+                                    tools:ignore="ContentDescription" />
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:background="?selectableItemBackground"
+                                    android:onClick="@{() -> viewModel.onClickPlay()}"
+                                    android:src="@{viewModel.playing ? @drawable/ic_pause : @drawable/ic_play}"
+                                    android:tint="@{viewModel.uiColor}"
+                                    tools:ignore="ContentDescription" />
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:background="?selectableItemBackground"
+                                    android:onClick="@{() -> viewModel.onClickSkipToNext()}"
+                                    android:src="@drawable/ic_skip_next"
+                                    android:tint="@{viewModel.uiColor}"
+                                    tools:ignore="ContentDescription" />
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:background="?selectableItemBackground"
+                                    android:onClick="@{() -> viewModel.onClickLike()}"
+                                    android:src="@{viewModel.like ? @drawable/ic_favorite : @drawable/ic_favorite_border}"
+                                    android:tint="@{viewModel.uiColor}"
+                                    tools:ignore="ContentDescription" />
+
+                            </LinearLayout>
+
+                            <!-- progress bar -->
+                            <moe.aoramd.raindrop.widget.MusicProgressBar
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:bufferColor="@{viewModel.uiColorLight}"
+                                app:fadeVisible="@{viewModel.showProgressBar ? View.VISIBLE : View.GONE}"
+                                app:playColor="@{viewModel.uiColor}"
+                                app:progress="@{viewModel.progress}"
+                                app:progressChangedListener="@{viewModel::changedProgress}"
+                                app:progressStartChangeListener="@{viewModel::progressStartChange}" />
+
+                        </FrameLayout>
+
+                        <ImageButton
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?selectableItemBackground"
+                            android:onClick="@{() -> viewModel.onClickEnableProgress()}"
+                            android:src="@drawable/ic_progress"
+                            android:tint="@{viewModel.uiColor}"
+                            tools:ignore="ContentDescription" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:onClick="@{() -> viewModel.onClickEnablePlayingList()}"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@{viewModel.name}"
+                        android:textColor="@{viewModel.uiColorLight}"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.authors}"
+                        android:textColor="@{viewModel.uiColorLight}" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="600dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="@{layoutManager}"
+                app:playAdapter="@{adapter}"
+                app:playingIndex="@{viewModel.playingIndex}"
+                app:playingSongs="@{viewModel.playingList}" />
+
+        </LinearLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+</layout>

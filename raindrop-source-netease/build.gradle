@@ -1,0 +1,71 @@
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':raindrop-repository')
+    implementation project(':lookinglass')
+
+    /*
+     * version
+     */
+
+    // core
+    def appcompat_version = "1.1.0"
+    def core_version = "1.1.0"
+
+    // network
+    def okhttp_version = "4.2.2"
+    def gson_version = "2.8.6"
+    def picasso_version = "2.71828"
+    def retrofit_version = "2.6.2"
+
+    // coroutines
+    def coroutines_version = "1.3.2"
+
+    /*
+     * implementation
+     */
+
+    // core
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.core:core-ktx:$core_version"
+
+    // network
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.picasso:picasso:$picasso_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    // coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+}

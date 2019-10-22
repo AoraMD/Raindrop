@@ -1,0 +1,2 @@
+include ':raindrop-app', ':raindrop-repository', ':raindrop-source-netease', ':lookinglass'
+rootProject.name='Raindrop'

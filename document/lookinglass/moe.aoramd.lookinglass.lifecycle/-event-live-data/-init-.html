@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>EventLiveData.<init> - lookinglass</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">lookinglass</a>&nbsp;/&nbsp;<a href="../index.html">moe.aoramd.lookinglass.lifecycle</a>&nbsp;/&nbsp;<a href="index.html">EventLiveData</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="moe.aoramd.lookinglass.lifecycle.EventLiveData$&lt;init&gt;()"></a>
+<code><span class="identifier">EventLiveData</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>用于收发单次数据的 LiveData，其值每一次更改都将重新置为 null.
+EventLiveData 不可用于收发可空数据.</p>
+<p>应用举例，因 ViewModel 中不应持有 LifecycleOwner 的引用，因此可通过 EventLiveData 向 LifecycleOwner 发送信息</p>
+<pre><code>    &lt;code&gt;
+    /* ViewModel */
+    private val _event = MutableLiveData&lt;String&gt;()
+    internal event: LiveData&lt;String&gt; = _event
+    &lt;/code&gt;
+
+    &lt;code&gt;
+    /* Activity */
+    &lt;/code&gt;</code></pre>
+<p><strong>Author</strong><br/>
+M.D.</p>
+<p><strong>Version</strong><br/>
+1</p>
+</BODY>
+</HTML>

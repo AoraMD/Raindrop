@@ -1,0 +1,124 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 29
+
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId "moe.aoramd.raindrop"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    androidExtensions {
+        experimental = true
+    }
+}
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':raindrop-repository')
+    implementation project(':raindrop-source-netease')
+    implementation project(':lookinglass')
+
+    /*
+     * version
+     */
+
+    // core
+    def appcompat_version = "1.1.0"
+    def core_version = "1.1.0"
+    def fragment_version = "1.1.0"
+
+    // media
+    def media_version = "1.1.0"
+    def exoplayer_version = "2.10.6"
+
+    // design
+    def material_version = "1.1.0-beta01"
+    def recyclerview_version = "1.1.0-beta05"
+    def viewpager2_version = "1.0.0-beta05"
+    def palette_version = "1.0.0"
+    def circleimageview_version = "3.0.1"
+    def slidinguppanel_version = "3.4.0"
+
+    // glide
+    def glide_version = "4.10.0"
+    def glidetransformations_version = "4.0.0"
+
+    // life cycle
+    def lifecycle_version = "2.2.0-beta01"
+
+    // databinding
+    def databinding_version = "3.2.0-alpha11"
+
+    // coroutines
+    def coroutines_version = "1.3.2"
+
+    /*
+     * implementation
+     */
+
+    // core
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.core:core-ktx:$core_version"
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
+
+    // media
+    implementation "androidx.media:media:$media_version"
+    implementation "com.google.android.exoplayer:exoplayer:${exoplayer_version}"
+
+    // design
+    implementation "com.google.android.material:material:$material_version"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation "androidx.viewpager2:viewpager2:$viewpager2_version"
+    implementation "androidx.palette:palette:$palette_version"
+    implementation "de.hdodenhof:circleimageview:$circleimageview_version"
+    implementation "com.sothree.slidinguppanel:library:$slidinguppanel_version"
+
+    // glide
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    implementation "jp.wasabeef:glide-transformations:$glidetransformations_version"
+
+    // life cycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
+    // coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    // kotlin annotation processors
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    kapt "androidx.databinding:compiler:$databinding_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
+}

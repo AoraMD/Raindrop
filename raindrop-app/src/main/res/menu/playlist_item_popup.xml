@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/playlist_item_popup_play_as_next"
+        android:title="@string/playlist_item_popup_play_as_next" />
+
+    <item
+        android:id="@+id/playlist_item_popup_download"
+        android:title="@string/playlist_item_popup_download" />
+
+    <item
+        android:id="@+id/playlist_item_popup_share"
+        android:title="@string/playlist_item_popup_share" />
+
+    <item
+        android:id="@+id/playlist_item_popup_remove"
+        android:title="@string/playlist_item_popup_remove" />
+</menu>

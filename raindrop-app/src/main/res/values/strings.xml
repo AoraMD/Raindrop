@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Raindrop</string>
+    <string name="app_channel_name">Raindrop</string>
+    <string name="app_loading">Loading</string>
+    <string name="description_next_song">Next Song</string>
+    <string name="description_play">Play</string>
+    <string name="description_previous_song">Previous Song</string>
+    <string name="description_like">Like</string>
+    <string name="main_music">Music</string>
+    <string name="main_profile">Profile</string>
+    <string name="music_local_music">Local Music</string>
+    <string name="music_download">Download</string>
+    <string name="music_radio">Private Radio</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_click_login">Click To Login</string>
+    <string name="profile_empty_status">Empty Status</string>
+    <string name="description_operation_menu">Operation Menu</string>
+    <string name="playlist_song_info_tag">%1$s · %2$s</string>
+    <string name="snackbar_network_error">Network error, please check network</string>
+    <string name="snackbar_request_error">Request error, please try again</string>
+    <string name="snackbar_file_exist_error">Song file is existed</string>
+    <string name="snackbar_downloading_error">Song is downloading now</string>
+    <string name="snackbar_download_successfully">Download successfully</string>
+    <string name="playlist_item_popup_play_as_next">Play As Next</string>
+    <string name="playlist_item_popup_download">Download</string>
+    <string name="playlist_item_popup_share">Share</string>
+    <string name="playlist_item_popup_remove">Remove From Playlist</string>
+    <string name="app_list_loading">Loading (。_。)</string>
+    <string name="login_hint_phone">Phone</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_login">Login</string>
+    <string name="login_cancel">Cancel</string>
+</resources>

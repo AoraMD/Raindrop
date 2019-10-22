@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#c7c7c7</color>
+    <color name="colorPrimaryDark">#c7c7c7</color>
+    <color name="colorPrimaryLight">#ffffff</color>
+    <color name="colorAccent">#ffffff</color>
+    <color name="colorFront">#424242</color>
+
+    <color name="MusicProgressBarPlayColor">#bbdefb</color>
+    <color name="MusicProgressBarBufferColor">#e3f2fd</color>
+    <color name="MusicProgressBarBackColor">#ffffff</color>
+</resources>

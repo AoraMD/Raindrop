@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="adapter"
+            type="moe.aoramd.raindrop.adapter.list.MusicListAdapter" />
+
+        <variable
+            name="layoutManager"
+            type="androidx.recyclerview.widget.RecyclerView.LayoutManager" />
+
+        <variable
+            name="viewModel"
+            type="moe.aoramd.raindrop.view.music.MusicViewModel" />
+    </data>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:refreshing="@={viewModel.updating}"
+        app:refreshingEvent="@{() -> viewModel.refresh(false)}">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="@{layoutManager}"
+            app:musicAdapter="@{adapter}"
+            app:playlists="@{viewModel.playlists}" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</layout>
