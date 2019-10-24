@@ -70,17 +70,17 @@ class MusicProgressBar(context: Context?, attrs: AttributeSet?, defStyleAttr: In
             typeArray?.getColor(
                 R.styleable.MusicProgressBar_playColor,
                 ContextCompat.getColor(context, R.color.MusicProgressBarPlayColor)
-            ) ?: 0xbbdefb
+            ) ?: 0xffbbdefb.toInt()
         bufferColor =
             typeArray?.getColor(
                 R.styleable.MusicProgressBar_bufferColor,
                 ContextCompat.getColor(context, R.color.MusicProgressBarBufferColor)
-            ) ?: 0xe3f2fd
+            ) ?: 0xffe3f2fd.toInt()
         backColor =
             typeArray?.getColor(
                 R.styleable.MusicProgressBar_backColor,
                 ContextCompat.getColor(context, R.color.MusicProgressBarBackColor)
-            ) ?: 0xffffff
+            ) ?: 0xffffffff.toInt()
 
         typeArray?.recycle()
     }
