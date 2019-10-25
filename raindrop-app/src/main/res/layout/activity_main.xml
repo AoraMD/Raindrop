@@ -34,11 +34,6 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <include
-            android:id="@+id/music_bar"
-            layout="@layout/layout_main_music_bar"
-            android:visibility="@{viewModel.musicBarVisible ? View.VISIBLE : View.GONE}" />
-
     </LinearLayout>
 
 </layout>

@@ -1,8 +1,5 @@
 package moe.aoramd.raindrop.service
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,9 +13,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.media.session.MediaButtonReceiver
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -35,12 +29,10 @@ import moe.aoramd.raindrop.repository.Tags
 import moe.aoramd.raindrop.repository.entity.Album
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.lookinglass.manager.ContextManager
-import moe.aoramd.raindrop.view.play.PlayActivity
+import moe.aoramd.raindrop.manager.NotifyManager
 import kotlin.math.roundToInt
 
 class PlayService : Service() {
-
-    private val _tag = "PlayService"
 
     companion object {
         private const val INDEX_NONE = -1
@@ -51,10 +43,10 @@ class PlayService : Service() {
 
         private const val MEDIA_SESSION_TAG = "Raindrop Media Session Tag"
 
-        private const val ACTION_SKIP_TO_PREVIOUS = "moe.aoramd.raindrop.playservice:previous"
-        private const val ACTION_PLAY = "moe.aoramd.raindrop.playservice:play"
-        private const val ACTION_PAUSE = "moe.aoramd.raindrop.playservice:pause"
-        private const val ACTION_SKIP_TO_NEXT = "moe.aoramd.raindrop.playservice:next"
+        const val ACTION_SKIP_TO_PREVIOUS = "moe.aoramd.raindrop.playservice:previous"
+        const val ACTION_PLAY = "moe.aoramd.raindrop.playservice:play"
+        const val ACTION_PAUSE = "moe.aoramd.raindrop.playservice:pause"
+        const val ACTION_SKIP_TO_NEXT = "moe.aoramd.raindrop.playservice:next"
         const val ACTION_LIKE = "moe.aoramd.raindrop.playservice:like"
 
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
@@ -84,7 +76,7 @@ class PlayService : Service() {
         }
         setOnCompletionListener {
             //            session.controller.transportControls.skipToNext()
-            Log.d(_tag, "Play Complete")
+            // todo fix on complete
         }
         setOnBufferingUpdateListener { _, percent ->
             buildAndSetState(
@@ -301,17 +293,7 @@ class PlayService : Service() {
         registerReceiver(notificationReceiver, IntentFilter(ACTION_LIKE))
 
         // initialize notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channel =
-                NotificationChannel(
-                    channelId,
-                    getString(R.string.app_channel_name),
-                    NotificationManager.IMPORTANCE_DEFAULT
-                )
-            manager.createNotificationChannel(channel)
-        }
+        NotifyManager.registerNotificationChannel(channelId)
 
         updateMetadata(null)
         stopForeground(false)
@@ -370,14 +352,6 @@ class PlayService : Service() {
         updateNotification()
     }
 
-    private fun reset() {
-        stateUpdateHandler.removeMessages(HANDLE_MESSAGE_UPDATE)
-
-        player.reset()
-        buildAndSetState(PlaybackStateCompat.STATE_NONE)
-        stopForeground(false)
-    }
-
     private fun resetPlayingList(list: List<Song>, index: Int) {
         stateUpdateHandler.removeMessages(HANDLE_MESSAGE_UPDATE)
 
@@ -422,99 +396,17 @@ class PlayService : Service() {
 
     // private functions : notification
     private fun updateNotification() {
-        val metadata = session.controller.metadata
-        val builder = NotificationCompat.Builder(this, channelId).apply {
-            setContentTitle(metadata.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
-            setContentText(metadata.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE))
-            setSmallIcon(R.drawable.ic_icon_temp)
-            setLargeIcon(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
-            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-
-            setContentIntent(
-                PendingIntent.getActivity(
-                    this@PlayService,
-                    0,
-                    Intent(this@PlayService, PlayActivity::class.java),
-                    0
-                )
-            )
-
-            addAction(
-                createNotificationAction(
-                    R.drawable.ic_skip_previous,
-                    R.string.description_previous_song,
-                    ACTION_SKIP_TO_PREVIOUS
-                )
-            )
-            addAction(
-                if (playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-                    createNotificationAction(
-                        R.drawable.ic_pause,
-                        R.string.description_play,
-                        ACTION_PAUSE
-                    )
-                } else {
-                    createNotificationAction(
-                        R.drawable.ic_play,
-                        R.string.description_play,
-                        ACTION_PLAY
-                    )
-                }
-            )
-            addAction(
-                createNotificationAction(
-                    R.drawable.ic_skip_next,
-                    R.string.description_next_song,
-                    ACTION_SKIP_TO_NEXT
-                )
-            )
-            addAction(
-                createNotificationAction(
-                    when {
-                        playingIndex == INDEX_NONE -> R.drawable.ic_favorite_border
-                        playingList[playingIndex].like -> R.drawable.ic_favorite
-                        else -> R.drawable.ic_favorite_border
-                    },
-                    R.string.description_like,
-                    ACTION_LIKE
-                )
-            )
-
-            setDeleteIntent(
-                MediaButtonReceiver.buildMediaButtonPendingIntent(
-                    this@PlayService,
-                    PlaybackStateCompat.ACTION_STOP
-                )
-            )
-
-            setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(session.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2)
-                    .setShowCancelButton(true)
-                    .setCancelButtonIntent(
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(
-                            this@PlayService,
-                            PlaybackStateCompat.ACTION_STOP
-                        )
-                    )
-            )
-
-        }
-
-        startForeground(1, builder.build())
-    }
-
-    private fun createNotificationAction(
-        icon: Int,
-        description: Int,
-        pendingIntentAction: String
-    ): NotificationCompat.Action =
-        NotificationCompat.Action(
-            icon,
-            getString(description),
-            PendingIntent.getBroadcast(this, 0, Intent(pendingIntentAction), 0)
+        val notification = NotifyManager.mediaStyleNotification(
+            this, channelId, session,
+            playbackState.state == PlaybackStateCompat.STATE_PLAYING || playbackState.state == PlaybackStateCompat.STATE_BUFFERING,
+            when {
+                playingIndex == INDEX_NONE -> false
+                playingList[playingIndex].like -> true
+                else -> false
+            }
         )
+        startForeground(1, notification)
+    }
 
 
     // private functions : playback state

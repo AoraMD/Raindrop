@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="controller"
+            type="moe.aoramd.raindrop.view.base.control.BarControlViewModel" />
+
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        app:cardBackgroundColor="@color/colorAccent"
+        app:cardElevation="2dp"
+        app:fadeVisible="@{controller.barVisible ? View.VISIBLE : View.GONE}">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{() -> controller.barSkipToPrevious()}"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_skip_previous"
+                    android:tint="@color/colorFront"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{() -> controller.barSkipToNext()}"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_skip_next"
+                    android:tint="@color/colorFront"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{() -> controller.barPlay()}"
+                    android:padding="8dp"
+                    android:src="@{controller.barPlaying ? @drawable/ic_pause : @drawable/ic_play}"
+                    android:tint="@color/colorFront"
+                    tools:ignore="ContentDescription"
+                    tools:src="@drawable/ic_play" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:progress="@{controller.barProgress}" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>

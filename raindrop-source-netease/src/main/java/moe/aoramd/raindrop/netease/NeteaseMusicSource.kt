@@ -18,6 +18,7 @@ import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.raindrop.repository.source.SourceResult
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.BufferedInputStream
@@ -25,8 +26,6 @@ import java.io.IOException
 import java.io.OutputStream
 
 class NeteaseMusicSource : MusicSource {
-
-    private val _tag = "NeteaseMusicSource"
 
     companion object {
         private const val BASE_URL = "http://193.112.99.234:3000/"
@@ -65,67 +64,59 @@ class NeteaseMusicSource : MusicSource {
 
     override suspend fun login(phone: Long, password: String): SourceResult<Account> =
         withContext(Dispatchers.IO) {
-            val response = connectionLogin.login(phone, password)
-
-            if (response.code() != 200)
+            val result = request { connectionLogin.login(phone, password) }
+            if (result.success) {
+                return@withContext result.content.run {
+                    if (code == 200)
+                        SourceResult(true, resultContent = account)
+                    else
+                        SourceResult(false, resultErrorMsg = MusicSource.EVENT_REQUEST_ERROR)
+                }
+            } else
                 return@withContext SourceResult<Account>(
                     false,
                     resultErrorMsg = MusicSource.EVENT_NETWORK_ERROR
                 )
-
-            return@withContext response.body()?.run {
-                if (code == 200)
-                    SourceResult(true, resultContent = account)
-                else
-                    SourceResult(false, resultErrorMsg = MusicSource.EVENT_REQUEST_ERROR)
-            } ?: SourceResult(false, resultErrorMsg = MusicSource.EVENT_NETWORK_ERROR)
         }
 
     override suspend fun updateLoginState(): Boolean =
         withContext(Dispatchers.IO) {
-            val response = connection.updateLoginState()
-
-            if (response.code() != 200)
+            val result = request { connection.updateLoginState() }
+            if (result.success)
+                return@withContext result.content.code == 200
+            else
                 return@withContext false
-
-            return@withContext response.body()?.code == 200
         }
 
     override suspend fun loadPlaylists(accountId: Long): SourceResult<List<Playlist>> =
         withContext(Dispatchers.IO) {
-
-            val response = connection.loadPlaylists(accountId)
-
-            if (response.code() != 200)
+            val result = request { connection.loadPlaylists(accountId) }
+            if (result.success) {
+                return@withContext result.content.run {
+                    if (code == 200)
+                        SourceResult(true, resultContent = playlist)
+                    else
+                        SourceResult(false, resultErrorMsg = MusicSource.EVENT_REQUEST_ERROR)
+                }
+            } else
                 return@withContext SourceResult<List<Playlist>>(
                     false,
                     resultErrorMsg = MusicSource.EVENT_NETWORK_ERROR
                 )
-
-            return@withContext response.body()?.run {
-                if (code == 200)
-                    SourceResult(true, resultContent = playlist)
-                else
-                    SourceResult(false, resultErrorMsg = MusicSource.EVENT_REQUEST_ERROR)
-            } ?: SourceResult(false, resultErrorMsg = MusicSource.EVENT_NETWORK_ERROR)
         }
 
     override suspend fun loadSongs(playlistId: Long): SourceResult<List<Song>> =
         withContext(Dispatchers.IO) {
-            val response = connection.loadSongs(playlistId)
-
-            if (response.code() != 200)
-                return@withContext SourceResult<List<Song>>(
-                    false,
-                    resultErrorMsg = MusicSource.EVENT_NETWORK_ERROR
-                )
-
-            return@withContext response.body()?.run {
-                if (code == 200)
-                    SourceResult(true, resultContent = playlist.tracks)
-                else
-                    SourceResult(false, MusicSource.EVENT_REQUEST_ERROR)
-            } ?: SourceResult(false, MusicSource.EVENT_NETWORK_ERROR)
+            val result = request { connection.loadSongs(playlistId) }
+            if (result.success) {
+                return@withContext result.content.run {
+                    if (code == 200)
+                        SourceResult(true, resultContent = playlist.tracks)
+                    else
+                        SourceResult(false, MusicSource.EVENT_REQUEST_ERROR)
+                }
+            } else
+                return@withContext SourceResult<List<Song>>(false, MusicSource.EVENT_NETWORK_ERROR)
         }
 
     override suspend fun loadUrl(songId: Long): String {
@@ -162,5 +153,28 @@ class NeteaseMusicSource : MusicSource {
             }
         } else
             return MusicSource.EVENT_REQUEST_ERROR
+    }
+
+    private suspend fun <T> request(function: suspend () -> Response<T>): RequestResult<T> {
+        val response: Response<T>
+        try {
+            response = function.invoke()
+        } catch (e: IOException) {
+            return RequestResult(false)
+        }
+
+        return if (response.code() != 200)
+            RequestResult(false)
+        else
+            RequestResult(true, resultContent = response.body())
+    }
+
+    private data class RequestResult<T>(
+        val success: Boolean,
+        private val resultContent: T? = null
+    ) {
+        val content: T
+            get() = resultContent
+                ?: throw IllegalStateException("null value when request is unsuccessful")
     }
 }

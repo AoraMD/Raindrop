@@ -6,7 +6,7 @@ import moe.aoramd.raindrop.repository.model.database.ModelDatabase
 import moe.aoramd.raindrop.repository.model.relation.AccountPlaylistRelation
 import moe.aoramd.raindrop.repository.model.relation.PlaylistSongRelation
 
-object DefaultMusicModel : MusicModel {
+object RaindropMusicModel : MusicModel {
 
     // entity
     private val accountDao by lazy {

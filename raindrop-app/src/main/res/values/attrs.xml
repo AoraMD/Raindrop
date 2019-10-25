@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="backColor" format="reference|color" />
+
     <declare-styleable name="MusicProgressBar">
-        <attr name="playColor" format="reference" />
-        <attr name="bufferColor" format="reference" />
-        <attr name="backColor" format="reference" />
+        <attr name="playColor" format="reference|color" />
+        <attr name="bufferColor" format="reference|color" />
+        <attr name="backColor" />
     </declare-styleable>
+
+    <declare-styleable name="PieProgress">
+        <attr name="sweepAngle" format="float" />
+        <attr name="startAngle" format="float" />
+        <attr name="progressColor" format="reference|color" />
+        <attr name="backColor" />
+    </declare-styleable>
+
 </resources>

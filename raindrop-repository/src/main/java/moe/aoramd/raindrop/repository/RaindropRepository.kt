@@ -4,11 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Environment
 import com.jakewharton.disklrucache.DiskLruCache
 import kotlinx.coroutines.*
+import moe.aoramd.lookinglass.log.GlassLog
 import moe.aoramd.raindrop.repository.entity.Account
 import moe.aoramd.raindrop.repository.entity.Playlist
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.repository.model.MusicModel
-import moe.aoramd.raindrop.repository.model.DefaultMusicModel
+import moe.aoramd.raindrop.repository.model.RaindropMusicModel
 import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.lookinglass.manager.ContextManager
 import java.io.BufferedOutputStream
@@ -23,7 +24,7 @@ object RaindropRepository {
     const val MSG_DOWNLOAD_SUCCESSFULLY = "#_Repository_download_successfully"
 
     lateinit var source: MusicSource
-    private val model: MusicModel = DefaultMusicModel
+    private val model: MusicModel = RaindropMusicModel
 
     private const val cacheSize = 100L * 1024 * 1024
 
@@ -163,6 +164,7 @@ object RaindropRepository {
             when {
                 // play download
                 File(downloadUrl).exists() -> {
+                    GlassLog.d("play download")
                     withContext(Dispatchers.Main) {
                         success.invoke(downloadUrl)
                         complete.invoke()
@@ -171,6 +173,7 @@ object RaindropRepository {
 
                 // play cache
                 File(cacheUrl).exists() -> {
+                    GlassLog.d("play cache")
                     withContext(Dispatchers.Main) {
                         success.invoke(cacheUrl)
                         complete.invoke()
@@ -179,6 +182,7 @@ object RaindropRepository {
 
                 // play online
                 else -> {
+                    GlassLog.d("play online")
                     loadOnlineUrl(scope, song.id, success, error, complete)
                 }
             }

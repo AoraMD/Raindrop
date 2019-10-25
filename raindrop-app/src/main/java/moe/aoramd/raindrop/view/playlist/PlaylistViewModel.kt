@@ -1,20 +1,16 @@
 package moe.aoramd.raindrop.view.playlist
 
-import android.support.v4.media.session.MediaControllerCompat
 import androidx.lifecycle.*
 import moe.aoramd.lookinglass.lifecycle.EventLiveData
-import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.entity.Playlist
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.SongMedium
+import moe.aoramd.raindrop.view.base.control.BarControlViewModel
 
-class PlaylistViewModel(val playlist: Playlist) : ViewModel() {
+class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
 
-    // media component
-    internal var service: IPlayService? = null
-
-    internal var controller: MediaControllerCompat? = null
+    override val listenPlayingDataChanged: Boolean = false
 
     // live data
     private val _loading = MutableLiveData<Boolean>()

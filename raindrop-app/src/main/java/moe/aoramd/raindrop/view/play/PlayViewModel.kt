@@ -2,59 +2,45 @@ package moe.aoramd.raindrop.view.play
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
 import androidx.palette.graphics.Palette
-import moe.aoramd.lookinglass.manager.AisleManager
-import moe.aoramd.raindrop.IPlayListener
-import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.PlayService
-import moe.aoramd.raindrop.service.SongMedium
+import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
 
-class PlayViewModel : ViewModel() {
+class PlayViewModel : PlayerBindViewModel() {
 
-    // media component
-    internal var service: IPlayService? = null
+    override val listenPlayingDataChanged: Boolean = true
 
-    internal var controller: MediaControllerCompat? = null
-
-    internal val controllerCallback = object : MediaControllerCompat.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            super.onPlaybackStateChanged(state)
-
-            state?.apply {
-                when (this.state) {
-                    PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
-                        _playing.value = true
-                        if (!isSeeking)
-                            _progress.value = this.extras?.getInt("progress") ?: 0
-                    }
-                    else -> {
-                        _playing.value = false
-                    }
-                }
-            }
-        }
+    override fun playingSongChanged(song: Song, index: Int) {
+        super.playingSongChanged(song, index)
+        _uiColor.value = 0xff424242.toInt()
+        _uiColorLight.value = 0xff6d6d6d.toInt()
+        playingSong.value = song
+        _playingIndex.value = index
     }
 
-    internal val playListener = object : IPlayListener.Stub() {
-        override fun onPlayingSongChanged(songMedium: SongMedium, index: Int) {
-            AisleManager.main(Runnable {
-                val song = SongMedium.toSong(songMedium)
-                _uiColor.value = 0xff424242.toInt()
-                _uiColorLight.value = 0xff6d6d6d.toInt()
-                playingSong.value = song
-                _playingIndex.value = index
-            })
-        }
+    override fun playingListChanged(songs: List<Song>) {
+        super.playingListChanged(songs)
+        _playingList.value = songs
+    }
 
-        override fun onPlayingListChanged(songMediums: MutableList<SongMedium>) {
-            _playingList.value = SongMedium.toSongs(songMediums)
+    override fun playingStateChanged(state: PlaybackStateCompat?) {
+        super.playingStateChanged(state)
+        state?.apply {
+            when (this.state) {
+                PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
+                    _playing.value = true
+                    if (!isSeeking)
+                        _progress.value = this.extras?.getInt("progress") ?: 0
+                }
+                else -> {
+                    _playing.value = false
+                }
+            }
         }
     }
 
