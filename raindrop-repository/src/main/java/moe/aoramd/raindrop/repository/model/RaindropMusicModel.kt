@@ -75,7 +75,6 @@ object RaindropMusicModel : MusicModel {
                 Song(
                     it.id,
                     it.name,
-                    it.like,
                     authorDao.queryAll(it.authors),
                     albums[it.album] ?: Album.offline
                 )
@@ -90,7 +89,6 @@ object RaindropMusicModel : MusicModel {
                     SongMeta(
                         it.id,
                         it.name,
-                        it.like,
                         it.authors.map { author -> author.id },
                         it.album.id
                     )

@@ -144,12 +144,13 @@ class NeteaseMusicSource : MusicSource {
                     if (length == -1) break
                     stream.write(data, 0, length)
                 }
-                stream.flush()
-                stream.close()
-                inputStream.close()
                 null
             } catch (e: IOException) {
                 MusicSource.MSG_IO_ERROR
+            } finally {
+                stream.flush()
+                stream.close()
+                inputStream.close()
             }
         } else
             return MusicSource.EVENT_REQUEST_ERROR

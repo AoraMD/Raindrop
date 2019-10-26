@@ -149,4 +149,10 @@ object BindingBaseAdapter {
             else -> view.visibility = visibility
         }
     }
+
+    @JvmStatic
+    @BindingAdapter("onLongClick")
+    fun setOnLongClickListener(view: View, listener: View.OnLongClickListener) {
+        view.setOnLongClickListener(listener)
+    }
 }

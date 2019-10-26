@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.MediaPlayer
 import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -30,16 +29,13 @@ import moe.aoramd.raindrop.repository.entity.Album
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.manager.NotifyManager
-import kotlin.math.roundToInt
+import moe.aoramd.raindrop.player.MusicPlayer
+import moe.aoramd.raindrop.player.Player
 
 class PlayService : Service() {
 
     companion object {
         private const val INDEX_NONE = -1
-
-        private const val HANDLE_MESSAGE_UPDATE = 0x4d7e9de9
-
-        private const val STATE_UPDATE_DELAY = 500L
 
         private const val MEDIA_SESSION_TAG = "Raindrop Media Session Tag"
 
@@ -48,13 +44,13 @@ class PlayService : Service() {
         const val ACTION_PAUSE = "moe.aoramd.raindrop.playservice:pause"
         const val ACTION_SKIP_TO_NEXT = "moe.aoramd.raindrop.playservice:next"
         const val ACTION_LIKE = "moe.aoramd.raindrop.playservice:like"
+        const val ACTION_SEEK_TO_PROGRESS = "moe.aoramd.raindrop.playservice:seek"
 
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
 
         private val notPlaying = Song(
             Tags.UNKNOWN_ID,
             "Not Playing",
-            false,
             listOf(),
             Album(Tags.UNKNOWN_ID, Tags.UNKNOWN_TAG, Tags.UNKNOWN_TAG)
         )
@@ -67,26 +63,19 @@ class PlayService : Service() {
     // service
     private val listeners = mutableMapOf<String, IPlayListener>()
 
-    // player
-    private val player: MediaPlayer = MediaPlayer().apply {
-        setOnPreparedListener {
-            playingSongLength = it.duration.toLong()
-            this@PlayService.play()
-            updateMetadataAsync(playingList[playingIndex].album.coverUrl)
+    private val musicPlayer: Player = MusicPlayer().apply {
+        autoPlayAfterPrepared = true
+        stateChangedListener = {
+            playingState = it
+            playingStateChanged()
+            session.setPlaybackState(it)
+            updateNotification()
         }
-        setOnCompletionListener {
-            //            session.controller.transportControls.skipToNext()
-            // todo fix on complete
-        }
-        setOnBufferingUpdateListener { _, percent ->
-            buildAndSetState(
-                if (percent < 100)
-                    PlaybackStateCompat.STATE_BUFFERING
-                else
-                    PlaybackStateCompat.STATE_PLAYING
-            )
-        }
+        progressChangedListener = { playingProgressChanged(it) }
+        preparedListener = { updateMetadataAsync(playingList[playingIndex].album.coverUrl) }
     }
+
+    private lateinit var playingState: PlaybackStateCompat
 
     private val playingList = mutableListOf<Song>()
 
@@ -104,23 +93,106 @@ class PlayService : Service() {
     // media session
     private lateinit var session: MediaSessionCompat
 
-    private lateinit var playbackState: PlaybackStateCompat
+    // override functions
+    override fun onBind(intent: Intent?): IBinder? = object : IPlayService.Stub() {
+        override fun sessionToken(): MediaSessionCompat.Token = session.sessionToken
 
-    private val stateUpdateHandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            if (msg.what == HANDLE_MESSAGE_UPDATE) {
-                buildAndSetState(PlaybackStateCompat.STATE_PLAYING)
-                this.sendMessageDelayed(Message.obtain().apply {
-                    what = HANDLE_MESSAGE_UPDATE
-                }, STATE_UPDATE_DELAY)
-            }
+        override fun playingSong(): SongMedium =
+            SongMedium.fromSong(
+                if (playingIndex != INDEX_NONE)
+                    playingList[INDEX_NONE]
+                else
+                    notPlaying
+            )
+
+        override fun addSong(songMedium: SongMedium) {
+            playingList.add(SongMedium.toSong(songMedium))
+            playingListChanged()
         }
+
+        override fun addSongAsNext(songMedium: SongMedium) {
+            val play = playingList.isEmpty()
+            playingList.add(SongMedium.toSong(songMedium))
+            playingListChanged()
+            if (play) session.controller.transportControls.skipToQueueItem(0)
+        }
+
+        override fun resetPlayingList(songMediums: List<SongMedium>, index: Long) =
+            resetPlayingList(SongMedium.toSongs(songMediums), index.toInt())
+
+        override fun addPlayingListener(tag: String, listener: IPlayListener) {
+            listeners[tag] = listener
+            playingSongChanged(listener)
+            playingListChanged(listener)
+            playingStateChanged(listener)
+        }
+
+        override fun removePlayingListener(tag: String) {
+            if (listeners.containsKey(tag))
+                listeners.remove(tag)
+        }
+
+        override fun emptyList(): Boolean = playingList.isEmpty()
     }
 
+    override fun onCreate() {
+        super.onCreate()
+
+        // register context
+        ContextManager.registerContext(this)
+
+        // initialize media session
+
+        session = MediaSessionCompat(this, MEDIA_SESSION_TAG)
+
+        session.apply {
+            setCallback(sessionCallback)
+            setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
+            isActive = true
+            controller.registerCallback(object : MediaControllerCompat.Callback() {
+                override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                    updateNotification()
+                }
+            })
+        }
+
+        // initialize broadcast
+        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_PREVIOUS))
+        registerReceiver(notificationReceiver, IntentFilter(ACTION_PLAY))
+        registerReceiver(notificationReceiver, IntentFilter(ACTION_PAUSE))
+        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_NEXT))
+        registerReceiver(notificationReceiver, IntentFilter(ACTION_LIKE))
+
+        // initialize notification
+        NotifyManager.registerNotificationChannel(channelId)
+
+        updateMetadata(null)
+        stopForeground(false)
+    }
+
+    override fun onDestroy() {
+
+        musicPlayer.release()
+
+        // clean coroutines
+        job.cancel()
+
+        // unregister broadcast receiver
+        unregisterReceiver(notificationReceiver)
+
+        // RELEASE context
+        ContextManager.releaseContext()
+
+        super.onDestroy()
+    }
+
+
+    /*
+        action
+     */
     private val sessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
-            if (playbackState.state == PlaybackStateCompat.STATE_PAUSED) {
+            if (musicPlayer.playable) {
                 play()
             } else if (playingList.isNotEmpty()) {
                 if (playingIndex == INDEX_NONE)
@@ -130,8 +202,7 @@ class PlayService : Service() {
         }
 
         override fun onPause() {
-            if (playbackState.state == PlaybackStateCompat.STATE_PLAYING)
-                pause()
+            pause()
         }
 
         override fun onSkipToPrevious() {
@@ -168,13 +239,7 @@ class PlayService : Service() {
         }
 
         override fun onSeekTo(pos: Long) {
-            if (playbackState.state == PlaybackStateCompat.STATE_PLAYING
-                || playbackState.state == PlaybackStateCompat.STATE_PAUSED
-                || playbackState.state == PlaybackStateCompat.STATE_BUFFERING
-            ) {
-                seekTo(pos.toInt())
-            }
-
+            seekTo(pos)
         }
 
         override fun onCustomAction(action: String?, extras: Bundle?) {
@@ -186,12 +251,99 @@ class PlayService : Service() {
                 ACTION_CLEAN_LIST -> {
                     resetPlayingList(listOf(), INDEX_NONE)
                 }
+                ACTION_SEEK_TO_PROGRESS -> {
+                    extras?.apply {
+                        val progress = getFloat("progress", -1f)
+                        if (progress != -1f)
+                            musicPlayer.seekToProgress(progress)
+                    }
+                }
             }
         }
     }
 
+    private fun prepare() {
+        playingSongLength = 0
+        RaindropRepository.loadUrl(scope, playingList[playingIndex], false, {
+            musicPlayer.prepareSource(it)
+        })
+    }
 
-    // notification
+    private fun play() {
+        musicPlayer.play()
+        updateNotification()
+    }
+
+    private fun pause() {
+        musicPlayer.pause()
+        updateNotification()
+        stopForeground(false)
+    }
+
+    private fun seekTo(position: Long) {
+        musicPlayer.seekTo(position)
+        updateNotification()
+    }
+
+    private fun resetPlayingList(list: List<Song>, index: Int) {
+        musicPlayer.reset()
+        playingList.clear()
+        playingList.addAll(list)
+        playingListChanged()
+
+        if (list.isNotEmpty() && index in playingList.indices) {
+            playingIndex = index
+            prepare()
+        } else {
+            playingIndex = INDEX_NONE
+            musicPlayer.reset()
+            updateMetadata(null)
+            stopForeground(true)
+        }
+    }
+
+    /*
+        resource change
+     */
+    private fun playingSongChanged() {
+        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
+        for (pair in listeners)
+            pair.value.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
+    }
+
+    private fun playingSongChanged(listener: IPlayListener) {
+        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
+        listener.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
+    }
+
+    private fun playingListChanged() {
+        val songMediums = SongMedium.fromSongs(playingList)
+        for (pair in listeners)
+            pair.value.onPlayingListChanged(songMediums)
+    }
+
+    private fun playingListChanged(listener: IPlayListener) {
+        val songMediums = SongMedium.fromSongs(playingList)
+        listener.onPlayingListChanged(songMediums)
+    }
+
+    private fun playingStateChanged() {
+        for (pair in listeners)
+            pair.value.onPlayingStateChanged(playingState.state)
+    }
+
+    private fun playingStateChanged(listener: IPlayListener) {
+        listener.onPlayingStateChanged(playingState.state)
+    }
+
+    private fun playingProgressChanged(progress: Float) {
+        for (pair in listeners)
+            pair.value.onPlayingProgressChanged(progress)
+    }
+
+    /*
+        notification
+     */
     private val channelId by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             "moe.aoramd.raindrop:notification"
@@ -220,244 +372,18 @@ class PlayService : Service() {
         }
     }
 
-
-    // override functions
-    override fun onBind(intent: Intent?): IBinder? = object : IPlayService.Stub() {
-        override fun sessionToken(): MediaSessionCompat.Token = session.sessionToken
-
-        override fun playingSong(): SongMedium =
-            SongMedium.fromSong(
-                if (playingIndex != INDEX_NONE)
-                    playingList[INDEX_NONE]
-                else
-                    notPlaying
-            )
-
-        override fun addSong(songMedium: SongMedium) {
-            playingList.add(SongMedium.toSong(songMedium))
-            playingListChanged()
-        }
-
-        override fun addSongAsNext(songMedium: SongMedium) {
-            val play = playingList.isEmpty()
-            playingList.add(SongMedium.toSong(songMedium))
-            playingListChanged()
-            if (play) session.controller.transportControls.skipToQueueItem(0)
-        }
-
-        override fun resetPlayingList(songMediums: List<SongMedium>, index: Long) =
-            resetPlayingList(SongMedium.toSongs(songMediums), index.toInt())
-
-        override fun addPlayingListener(tag: String, listener: IPlayListener) {
-            listeners[tag] = listener
-            playingSongChanged(listener)
-            playingListChanged(listener)
-        }
-
-        override fun removePlayingListener(tag: String) {
-            if (listeners.containsKey(tag))
-                listeners.remove(tag)
-        }
-
-        override fun emptyList(): Boolean = playingList.isEmpty()
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
-        // register context
-        ContextManager.registerContext(this)
-
-        // initialize media session
-
-        session = MediaSessionCompat(this, MEDIA_SESSION_TAG)
-
-        session.apply {
-            setCallback(sessionCallback)
-            setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
-            isActive = true
-            controller.registerCallback(object : MediaControllerCompat.Callback() {
-                override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-                    updateNotification()
-                }
-            })
-        }
-
-        cleanAndSetState()
-
-        // initialize broadcast
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_PREVIOUS))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_PLAY))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_PAUSE))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_NEXT))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_LIKE))
-
-        // initialize notification
-        NotifyManager.registerNotificationChannel(channelId)
-
-        updateMetadata(null)
-        stopForeground(false)
-    }
-
-    override fun onDestroy() {
-
-        player.release()
-
-        // clean coroutines
-        job.cancel()
-
-        // unregister broadcast receiver
-        unregisterReceiver(notificationReceiver)
-
-        // RELEASE context
-        ContextManager.releaseContext()
-
-        super.onDestroy()
-    }
-
-
-    // private functions : action
-    private fun prepare() {
-        player.reset()
-        playingSongLength = 0
-        RaindropRepository.loadUrl(scope, playingList[playingIndex], false, {
-            player.setDataSource(it)
-            player.prepareAsync()
-        })
-        buildAndSetState(PlaybackStateCompat.STATE_CONNECTING, 0)
-    }
-
-    private fun play() {
-        stateUpdateHandler.sendMessageDelayed(Message.obtain().apply {
-            what = HANDLE_MESSAGE_UPDATE
-        }, STATE_UPDATE_DELAY)
-
-        player.start()
-        buildAndSetState(PlaybackStateCompat.STATE_PLAYING)
-        updateNotification()
-    }
-
-    private fun pause() {
-        stateUpdateHandler.removeMessages(HANDLE_MESSAGE_UPDATE)
-
-        player.pause()
-        buildAndSetState(PlaybackStateCompat.STATE_PAUSED)
-        updateNotification()
-        stopForeground(false)
-    }
-
-    private fun seekTo(pos: Int) {
-        player.seekTo(pos)
-        buildAndSetState(playbackState.state)
-        updateNotification()
-    }
-
-    private fun resetPlayingList(list: List<Song>, index: Int) {
-        stateUpdateHandler.removeMessages(HANDLE_MESSAGE_UPDATE)
-
-        playingList.clear()
-        playingList.addAll(list)
-        playingListChanged()
-
-        if (list.isNotEmpty() && index in playingList.indices) {
-            playingIndex = index
-            prepare()
-        } else {
-            playingIndex = INDEX_NONE
-            player.reset()
-            cleanAndSetState()
-            updateMetadata(null)
-            stopForeground(true)
-        }
-    }
-
-    private fun playingSongChanged() {
-        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
-        for (pair in listeners)
-            pair.value.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
-    }
-
-    private fun playingSongChanged(listener: IPlayListener) {
-        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
-        listener.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
-    }
-
-    private fun playingListChanged() {
-        val songMediums = SongMedium.fromSongs(playingList)
-        for (pair in listeners)
-            pair.value.onPlayingListChanged(songMediums)
-    }
-
-    private fun playingListChanged(listener: IPlayListener) {
-        val songMediums = SongMedium.fromSongs(playingList)
-        listener.onPlayingListChanged(songMediums)
-    }
-
-
-    // private functions : notification
     private fun updateNotification() {
         val notification = NotifyManager.mediaStyleNotification(
             this, channelId, session,
-            playbackState.state == PlaybackStateCompat.STATE_PLAYING || playbackState.state == PlaybackStateCompat.STATE_BUFFERING,
-            when {
-                playingIndex == INDEX_NONE -> false
-                playingList[playingIndex].like -> true
-                else -> false
-            }
+            musicPlayer.playing,
+            false
         )
         startForeground(1, notification)
     }
 
-
-    // private functions : playback state
-    private fun buildAndSetState(
-        state: Int,
-        position: Long = player.currentPosition.toLong()
-    ) {
-        playbackState = PlaybackStateCompat.Builder()
-            .setState(state, position, 1f)
-            .setExtras(Bundle().apply {
-                if (playbackState.state == PlaybackStateCompat.STATE_PLAYING
-                    || playbackState.state == PlaybackStateCompat.STATE_PAUSED
-                    || playbackState.state == PlaybackStateCompat.STATE_BUFFERING
-                ) {
-                    putInt(
-                        "progress",
-                        if (playingSongLength == 0L)
-                            0
-                        else
-                            (player.currentPosition.toFloat() * 100 / playingSongLength).roundToInt()
-                    )
-                    putLong(
-                        "length", playingSongLength
-                    )
-                    putBoolean(
-                        "like",
-                        playingList[playingIndex].like
-                    )
-                } else {
-                    putInt("progress", 0)
-                    putLong("length", 0)
-                    putBoolean("like", false)
-                }
-            })
-            .build()
-        session.setPlaybackState(playbackState)
-    }
-
-    private fun cleanAndSetState() {
-        playbackState = PlaybackStateCompat.Builder()
-            .setState(PlaybackStateCompat.STATE_NONE, 0, 1f)
-            .setExtras(Bundle().apply {
-                putInt("progress", 0)
-                putBoolean("like", false)
-            })
-            .build()
-        session.setPlaybackState(playbackState)
-    }
-
-
-    // private functions : metadata
+    /*
+        metadata
+     */
     private fun updateMetadataAsync(url: String) {
         updateMetadata(null)
         Glide.with(this)

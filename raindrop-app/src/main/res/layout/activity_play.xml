@@ -136,7 +136,7 @@
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
                                     android:onClick="@{() -> viewModel.onClickLike()}"
-                                    android:src="@{viewModel.like ? @drawable/ic_favorite : @drawable/ic_favorite_border}"
+                                    android:src="@drawable/ic_favorite_border"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
 

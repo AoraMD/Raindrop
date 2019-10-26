@@ -8,7 +8,6 @@ data class SongMeta(
     @PrimaryKey
     val id: Long,
     val name: String,
-    val like: Boolean,
     val authors: List<Long>,
     val album: Long
 )

@@ -11,6 +11,10 @@
             name="controller"
             type="moe.aoramd.raindrop.view.base.control.BarControlViewModel" />
 
+        <variable
+            name="longClickListener"
+            type="android.view.View.OnLongClickListener" />
+
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -39,6 +43,7 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_skip_previous"
                     android:tint="@color/colorFront"
+                    app:onLongClick="@{longClickListener}"
                     tools:ignore="ContentDescription" />
 
                 <ImageView
@@ -49,6 +54,7 @@
                     android:padding="8dp"
                     android:src="@drawable/ic_skip_next"
                     android:tint="@color/colorFront"
+                    app:onLongClick="@{longClickListener}"
                     tools:ignore="ContentDescription" />
 
                 <ImageView
@@ -59,6 +65,7 @@
                     android:padding="8dp"
                     android:src="@{controller.barPlaying ? @drawable/ic_pause : @drawable/ic_play}"
                     android:tint="@color/colorFront"
+                    app:onLongClick="@{longClickListener}"
                     tools:ignore="ContentDescription"
                     tools:src="@drawable/ic_play" />
 

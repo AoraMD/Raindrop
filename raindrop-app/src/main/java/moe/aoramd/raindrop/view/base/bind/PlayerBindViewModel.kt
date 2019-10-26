@@ -2,7 +2,6 @@ package moe.aoramd.raindrop.view.base.bind
 
 import android.os.RemoteException
 import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -19,24 +18,8 @@ abstract class PlayerBindViewModel : ViewModel() {
     internal var service: IPlayService? = null
 
     internal var controller: MediaControllerCompat? = null
-        set(value) {
-            field = if (value != null) {
-                value.registerCallback(controllerCallback)
-                value
-            } else {
-                field?.unregisterCallback(controllerCallback)
-                null
-            }
-        }
 
-    internal val controllerCallback = object : MediaControllerCompat.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            super.onPlaybackStateChanged(state)
-            playingStateChanged(state)
-        }
-    }
-
-    internal val playListener = object : IPlayListener.Stub() {
+    private val playListener = object : IPlayListener.Stub() {
         override fun onPlayingSongChanged(songMedium: SongMedium, index: Int) {
             val song = SongMedium.toSong(songMedium)
             viewModelScope.launch(Dispatchers.Main) {
@@ -50,9 +33,25 @@ abstract class PlayerBindViewModel : ViewModel() {
                 playingListChanged(songs)
             }
         }
+
+        override fun onPlayingProgressChanged(progress: Float) {
+            viewModelScope.launch(Dispatchers.Main) {
+                playingProgressChanged(progress)
+            }
+        }
+
+        override fun onPlayingStateChanged(state: Int) {
+            viewModelScope.launch(Dispatchers.Main) {
+                playingStateChanged(state)
+            }
+        }
     }
 
-    internal fun addPlayListenerIfNeed() {
+    internal fun removePlayingListenerIfNeed() {
+        service?.removePlayingListener(this.toString())
+    }
+
+    internal fun addPlayingListenerIfNeed() {
         if (listenPlayingDataChanged) {
             try {
                 service?.addPlayingListener(this.toString(), playListener)
@@ -66,5 +65,7 @@ abstract class PlayerBindViewModel : ViewModel() {
 
     protected open fun playingListChanged(songs: List<Song>) {}
 
-    protected open fun playingStateChanged(state: PlaybackStateCompat?) {}
+    protected open fun playingStateChanged(state: Int) {}
+
+    protected open fun playingProgressChanged(progress: Float) {}
 }

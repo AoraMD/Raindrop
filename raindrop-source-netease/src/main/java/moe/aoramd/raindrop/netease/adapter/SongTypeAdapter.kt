@@ -87,7 +87,7 @@ class SongTypeAdapter : TypeAdapter<Song>() {
             }
             endObject()
         }
-        return Song(id, name, false, authors, album)
+        return Song(id, name, authors, album)
     }
 }
 

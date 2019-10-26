@@ -10,8 +10,6 @@ import moe.aoramd.raindrop.view.base.control.BarControlViewModel
 
 class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
 
-    override val listenPlayingDataChanged: Boolean = false
-
     // live data
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading

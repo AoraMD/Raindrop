@@ -9,7 +9,6 @@ import moe.aoramd.raindrop.repository.entity.Song
 data class SongMedium(
     val id: Long,
     val name: String,
-    val like: Boolean,
     val authorIds: List<Long>,
     val authorNames: List<String>,
     val albumId: Long,
@@ -19,7 +18,6 @@ data class SongMedium(
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readString() ?: PARCEL_ERROR_TAG,
-        parcel.readByte() != 0.toByte(),
         parcel.createLongArray()?.toList() ?: listOf(),
         parcel.createStringArrayList() ?: listOf(),
         parcel.readLong(),
@@ -30,7 +28,6 @@ data class SongMedium(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeByte(if (like) 1 else 0)
         parcel.writeLongArray(authorIds.toLongArray())
         parcel.writeStringList(authorNames)
         parcel.writeLong(albumId)
@@ -50,7 +47,6 @@ data class SongMedium(
             val id = songMedium.id
             val name = songMedium.name
             if (name == PARCEL_ERROR_TAG) return Song.offline
-            val like = songMedium.like
             val authors = mutableListOf<Author>()
             for (index in songMedium.authorIds.indices) {
                 authors.add(
@@ -64,20 +60,19 @@ data class SongMedium(
                 || songMedium.albumCoverUrl == PARCEL_ERROR_TAG
             ) return Song.offline
             val album = Album(songMedium.albumId, songMedium.albumName, songMedium.albumCoverUrl)
-            return Song(id, name, like, authors, album)
+            return Song(id, name, authors, album)
         }
 
         fun fromSong(song: Song): SongMedium {
             val id = song.id
             val name = song.name
-            val like = song.like
             val authorIds = song.authors.map { it.id }
             val authorNames = song.authors.map { it.name }
             val albumId = song.album.id
             val albumName = song.album.name
             val albumCoverUrl = song.album.coverUrl
             return SongMedium(
-                id, name, like,
+                id, name,
                 authorIds, authorNames,
                 albumId, albumName, albumCoverUrl
             )

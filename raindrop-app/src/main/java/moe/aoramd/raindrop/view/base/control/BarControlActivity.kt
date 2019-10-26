@@ -1,6 +1,7 @@
 package moe.aoramd.raindrop.view.base.control
 
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import moe.aoramd.raindrop.R
@@ -23,10 +24,11 @@ abstract class BarControlActivity : PlayerBindActivity() {
             LayoutInflater.from(this), R.layout.widget_music_bar,
             contentView, false
         )
-        barBinding.root.setOnLongClickListener {
+        barBinding.longClickListener = View.OnLongClickListener {
             PlayActivity.start(this)
             true
         }
+        barBinding.lifecycleOwner = this
         barBinding.controller = barController
         contentView.addView(barBinding.root)
     }

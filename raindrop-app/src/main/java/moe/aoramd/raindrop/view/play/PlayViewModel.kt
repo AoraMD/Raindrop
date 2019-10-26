@@ -10,6 +10,7 @@ import androidx.palette.graphics.Palette
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import kotlin.math.roundToInt
 
 class PlayViewModel : PlayerBindViewModel() {
 
@@ -28,20 +29,23 @@ class PlayViewModel : PlayerBindViewModel() {
         _playingList.value = songs
     }
 
-    override fun playingStateChanged(state: PlaybackStateCompat?) {
+    override fun playingStateChanged(state: Int) {
         super.playingStateChanged(state)
-        state?.apply {
-            when (this.state) {
-                PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
-                    _playing.value = true
-                    if (!isSeeking)
-                        _progress.value = this.extras?.getInt("progress") ?: 0
-                }
-                else -> {
-                    _playing.value = false
-                }
+        when (state) {
+            PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
+                _playing.value = true
+            }
+            else -> {
+                _playing.value = false
+
             }
         }
+    }
+
+    override fun playingProgressChanged(progress: Float) {
+        super.playingProgressChanged(progress)
+        if (!isSeeking)
+            _progress.value = progress.roundToInt()
     }
 
     // variable
@@ -53,8 +57,6 @@ class PlayViewModel : PlayerBindViewModel() {
     val showPlayingList = MutableLiveData<Boolean>()
 
     private val playingSong = MutableLiveData<Song>()
-
-    val like: LiveData<Boolean> = Transformations.map(playingSong) { it.like }
 
     val name: LiveData<String> = Transformations.map(playingSong) { it.name }
 
@@ -106,9 +108,15 @@ class PlayViewModel : PlayerBindViewModel() {
     }
 
     fun changedProgress(progress: Int) {
-        val duration = controller?.playbackState?.extras?.getLong("length") ?: 0
-        val position: Long = progress * duration / 100
-        controller?.transportControls?.seekTo(position)
+//        val duration = controller?.playbackState?.extras?.getLong("length") ?: 0
+//        val position: Long = progress * duration / 100
+//        controller?.transportControls?.seekTo(position)
+        controller?.transportControls?.sendCustomAction(
+            PlayService.ACTION_SEEK_TO_PROGRESS,
+            Bundle().apply {
+                putFloat("progress", progress.toFloat() / 100)
+            }
+        )
         isSeeking = false
     }
 

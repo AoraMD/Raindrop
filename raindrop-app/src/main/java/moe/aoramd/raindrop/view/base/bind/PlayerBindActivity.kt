@@ -18,7 +18,7 @@ abstract class PlayerBindActivity : AppCompatActivity() {
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             try {
-                binder.service?.removePlayingListener(this@PlayerBindActivity.toString())
+                binder.removePlayingListenerIfNeed()
             } catch (e: RemoteException) {
                 e.printStackTrace()
             }
@@ -28,10 +28,9 @@ abstract class PlayerBindActivity : AppCompatActivity() {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             binder.service = IPlayService.Stub.asInterface(service)
-            binder.addPlayListenerIfNeed()
+            binder.addPlayingListenerIfNeed()
             binder.controller =
                 MediaControllerCompat(this@PlayerBindActivity, binder.service!!.sessionToken())
-            binder.controller?.registerCallback(binder.controllerCallback)
         }
     }
 

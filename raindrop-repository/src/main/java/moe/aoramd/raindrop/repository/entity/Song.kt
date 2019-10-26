@@ -8,7 +8,6 @@ import moe.aoramd.raindrop.repository.Tags
 data class Song(
     val id: Long,
     val name: String,
-    val like: Boolean,
     val authors: List<Author>,
     val album: Album
 ) : Parcelable {
@@ -29,7 +28,6 @@ data class Song(
         val offline = Song(
             Tags.OFFLINE_ID,
             Tags.OFFLINE_TAG,
-            false,
             listOf(),
             Album.offline
         )

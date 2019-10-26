@@ -3,10 +3,14 @@ package moe.aoramd.raindrop.view.base.control
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import moe.aoramd.lookinglass.log.GlassLog
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import kotlin.math.roundToInt
 
 abstract class BarControlViewModel : PlayerBindViewModel() {
+
+    override val listenPlayingDataChanged: Boolean = true
 
     private val barVisibleMutable = MutableLiveData<Boolean>()
     val barVisible: LiveData<Boolean> = barVisibleMutable
@@ -25,23 +29,28 @@ abstract class BarControlViewModel : PlayerBindViewModel() {
 
     override fun playingListChanged(songs: List<Song>) {
         super.playingListChanged(songs)
+        GlassLog.d("playingListChanged ${songs.isNotEmpty()}")
         barVisibleMutable.value = songs.isNotEmpty()
     }
 
-    override fun playingStateChanged(state: PlaybackStateCompat?) {
+    override fun playingStateChanged(state: Int) {
         super.playingStateChanged(state)
-        state?.apply {
-            when (this.state) {
-                PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
-                    barVisibleMutable.value = true
-                    barPlayingMutable.value = true
-                    barProgressMutable.value = this.extras?.getInt("progress") ?: 0
-                }
-                else -> {
-                    barPlayingMutable.value = false
-                }
+        GlassLog.d("Bar Controller State Changed")
+        when (state) {
+            PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
+                barPlayingMutable.value = true
+                GlassLog.d("isPlaying")
+            }
+            else -> {
+                barPlayingMutable.value = false
+                GlassLog.d("isNotPlaying")
             }
         }
+    }
+
+    override fun playingProgressChanged(progress: Float) {
+        super.playingProgressChanged(progress)
+        barProgressMutable.value = progress.roundToInt()
     }
 
     fun barSkipToPrevious() {
