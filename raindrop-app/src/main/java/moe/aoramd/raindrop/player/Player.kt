@@ -45,7 +45,7 @@ abstract class Player {
 
     var autoPlayAfterPrepared: Boolean = false
 
-    protected abstract var playProgress: Float
+    protected abstract val playProgress: Float
 
     abstract var stateChangedListener: ((state: PlaybackStateCompat) -> Unit)?
 

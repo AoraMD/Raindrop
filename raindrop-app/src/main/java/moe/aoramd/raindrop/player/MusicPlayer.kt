@@ -41,10 +41,11 @@ class MusicPlayer : Player() {
 
     override var completedListener: (() -> Unit)? = null
 
-    override var playProgress: Float =
-        if (playable)
-            if (playLength == 0L) 0F else player.currentPosition.toFloat() * 100 / playLength
-        else 0F
+    override val playProgress: Float
+        get() = if (playable)
+            if (playLength == 0L) 0F else (player.currentPosition.toFloat() * 100 / playLength)
+        else
+            0F
 
     override fun prepareSource(url: String) {
         reset()
