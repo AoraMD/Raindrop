@@ -75,7 +75,9 @@ class PlayService : Service() {
         preparedListener = { updateMetadataAsync(playingList[playingIndex].album.coverUrl) }
     }
 
-    private lateinit var playingState: PlaybackStateCompat
+    private var playingState: PlaybackStateCompat = PlaybackStateCompat.Builder()
+        .setState(PlaybackStateCompat.STATE_NONE, 0, 1f)
+        .build()
 
     private val playingList = mutableListOf<Song>()
 
@@ -264,8 +266,13 @@ class PlayService : Service() {
 
     private fun prepare() {
         playingSongLength = 0
-        RaindropRepository.loadUrl(scope, playingList[playingIndex], false, {
-            musicPlayer.prepareSource(it)
+        RaindropRepository.loadUrl(
+            scope, playingList[playingIndex],
+            forceOnline = false,
+            success = {
+            if (it != Tags.UNKNOWN_TAG)
+                musicPlayer.prepareSource(it)
+            else TODO()
         })
     }
 

@@ -3,7 +3,6 @@ package moe.aoramd.raindrop.view.base.control
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import moe.aoramd.lookinglass.log.GlassLog
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
 import kotlin.math.roundToInt
@@ -29,21 +28,17 @@ abstract class BarControlViewModel : PlayerBindViewModel() {
 
     override fun playingListChanged(songs: List<Song>) {
         super.playingListChanged(songs)
-        GlassLog.d("playingListChanged ${songs.isNotEmpty()}")
         barVisibleMutable.value = songs.isNotEmpty()
     }
 
     override fun playingStateChanged(state: Int) {
         super.playingStateChanged(state)
-        GlassLog.d("Bar Controller State Changed")
         when (state) {
             PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
                 barPlayingMutable.value = true
-                GlassLog.d("isPlaying")
             }
             else -> {
                 barPlayingMutable.value = false
-                GlassLog.d("isNotPlaying")
             }
         }
     }

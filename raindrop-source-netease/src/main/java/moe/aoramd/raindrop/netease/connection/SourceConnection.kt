@@ -1,9 +1,6 @@
 package moe.aoramd.raindrop.netease.connection
 
-import moe.aoramd.raindrop.netease.repo.LoginRepo
-import moe.aoramd.raindrop.netease.repo.PlaylistRepo
-import moe.aoramd.raindrop.netease.repo.PlaylistsRepo
-import moe.aoramd.raindrop.netease.repo.StateRepo
+import moe.aoramd.raindrop.netease.repo.*
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -21,4 +18,7 @@ interface SourceConnection {
 
     @GET("playlist/detail")
     suspend fun loadSongs(@Query("id") playlistId: Long): Response<PlaylistRepo>
+
+    @GET("/song/url")
+    suspend fun loadUrl(@Query("id") songId: Long, @Query("br") bitRate: Int): Response<UrlRepo>
 }

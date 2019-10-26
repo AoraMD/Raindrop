@@ -64,10 +64,10 @@ class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
             RaindropRepository.downloadSong(
                 viewModelScope,
                 it[index.toInt()],
-                {
+                success = {
                     _event.value = RaindropRepository.MSG_DOWNLOAD_SUCCESSFULLY
                 },
-                { errorMsg ->
+                error = { errorMsg ->
                     _event.value = errorMsg
                 })
         }

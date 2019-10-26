@@ -10,6 +10,7 @@ import moe.aoramd.raindrop.netease.adapter.SongTypeAdapter
 import moe.aoramd.raindrop.netease.interceptor.GetCookieInterceptor
 import moe.aoramd.raindrop.netease.interceptor.PutCookieInterceptor
 import moe.aoramd.raindrop.netease.connection.SourceConnection
+import moe.aoramd.raindrop.repository.Tags
 import moe.aoramd.raindrop.repository.entity.Account
 import moe.aoramd.raindrop.repository.entity.Album
 import moe.aoramd.raindrop.repository.entity.Playlist
@@ -119,41 +120,50 @@ class NeteaseMusicSource : MusicSource {
                 return@withContext SourceResult<List<Song>>(false, MusicSource.EVENT_NETWORK_ERROR)
         }
 
-    override suspend fun loadUrl(songId: Long): String {
-        return "https://music.163.com/song/media/outer/url?id=$songId.mp3"
-    }
+    override suspend fun loadUrl(songId: Long, bitRate: Int): String =
+        withContext(Dispatchers.IO) {
+            val result = request { connection.loadUrl(songId, bitRate) }
+            if (result.success) {
+                return@withContext result.content.run {
+                    if (code == 200) data[0].url ?: Tags.UNKNOWN_TAG
+                    else Tags.UNKNOWN_TAG
+                }
+            } else return@withContext Tags.UNKNOWN_TAG
+        }
+
 
     override suspend fun downloadSong(
         songId: Long,
+        bitRate: Int,
         stream: OutputStream
     ): String? {
-        val url = loadUrl(songId)
-        val request = Request.Builder().url(url).build()
-        val response = OkHttpClient().newCall(request).execute()
+        try {
+            val url = loadUrl(songId, bitRate)
+            val request = Request.Builder().url(url).build()
+            val response = OkHttpClient().newCall(request).execute()
 
-        if (!response.isSuccessful)
-            return MusicSource.EVENT_NETWORK_ERROR
+            if (!response.isSuccessful)
+                return MusicSource.EVENT_NETWORK_ERROR
 
-        if (response.body != null) {
-            val inputStream = BufferedInputStream(response.body!!.byteStream())
-            return try {
-                val data = ByteArray(1024)
+            return if (response.body != null) {
+                val inputStream = BufferedInputStream(response.body!!.byteStream())
+                val data = ByteArray(2048)
                 var length: Int
                 while (true) {
                     length = inputStream.read(data)
                     if (length == -1) break
                     stream.write(data, 0, length)
                 }
-                null
-            } catch (e: IOException) {
-                MusicSource.MSG_IO_ERROR
-            } finally {
-                stream.flush()
-                stream.close()
                 inputStream.close()
-            }
-        } else
-            return MusicSource.EVENT_REQUEST_ERROR
+                null
+            } else
+                MusicSource.EVENT_REQUEST_ERROR
+        } catch (e: Throwable) {
+            return MusicSource.MSG_IO_ERROR
+        } finally {
+            stream.flush()
+            stream.close()
+        }
     }
 
     private suspend fun <T> request(function: suspend () -> Response<T>): RequestResult<T> {

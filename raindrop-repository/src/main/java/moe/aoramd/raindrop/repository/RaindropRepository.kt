@@ -146,13 +146,14 @@ object RaindropRepository {
     fun loadUrl(
         scope: CoroutineScope,
         song: Song,
+        bitRate: Int = 320000,
         forceOnline: Boolean,
         success: (url: String) -> Unit,
         error: (errorMsg: String) -> Unit = {},
         complete: () -> Unit = {}
     ) {
         if (forceOnline) {
-            loadOnlineUrl(scope, song.id, success, error, complete)
+            loadOnlineUrl(scope, song.id, bitRate, success, error, complete)
             return
         }
 
@@ -163,27 +164,27 @@ object RaindropRepository {
 
             when {
                 // play download
-                File(downloadUrl).exists() -> {
-                    GlassLog.d("play download")
-                    withContext(Dispatchers.Main) {
-                        success.invoke(downloadUrl)
-                        complete.invoke()
-                    }
-                }
-
-                // play cache
-                File(cacheUrl).exists() -> {
-                    GlassLog.d("play cache")
-                    withContext(Dispatchers.Main) {
-                        success.invoke(cacheUrl)
-                        complete.invoke()
-                    }
-                }
+//                File(downloadUrl).exists() -> {
+//                    GlassLog.d("play download")
+//                    withContext(Dispatchers.Main) {
+//                        success.invoke(downloadUrl)
+//                        complete.invoke()
+//                    }
+//                }
+//
+//                // play cache
+//                File(cacheUrl).exists() -> {
+//                    GlassLog.d("play cache")
+//                    withContext(Dispatchers.Main) {
+//                        success.invoke(cacheUrl)
+//                        complete.invoke()
+//                    }
+//                }
 
                 // play online
                 else -> {
                     GlassLog.d("play online")
-                    loadOnlineUrl(scope, song.id, success, error, complete)
+                    loadOnlineUrl(scope, song.id, bitRate, success, error, complete)
                 }
             }
         }
@@ -192,11 +193,12 @@ object RaindropRepository {
     private fun loadOnlineUrl(
         scope: CoroutineScope,
         songId: Long,
+        bitRate: Int,
         success: (url: String) -> Unit,
         error: (errorMsg: String) -> Unit = {},
         complete: () -> Unit = {}
     ) = scope.launch(Dispatchers.IO) {
-        val url = source.loadUrl(songId)
+        val url = source.loadUrl(songId, bitRate)
         withContext(Dispatchers.Main) {
             if (url == Tags.UNKNOWN_TAG)
                 error.invoke(MusicSource.EVENT_NETWORK_ERROR)
@@ -212,6 +214,7 @@ object RaindropRepository {
     private fun cacheSong(
         scope: CoroutineScope,
         songId: Long,
+        bitRate: Int = 320000,
         success: () -> Unit = {},
         error: (errorMsg: String) -> Unit = {}
     ) = scope.launch(Dispatchers.IO) {
@@ -222,7 +225,7 @@ object RaindropRepository {
         val editor = cache.edit(songId.toString())
         editor?.apply {
             val stream = newOutputStream(0)
-            val errorMsg = source.downloadSong(songId, stream)
+            val errorMsg = source.downloadSong(songId, bitRate, stream)
             if (errorMsg == null) {
                 commit()
                 withContext(Dispatchers.Main) {
@@ -241,6 +244,7 @@ object RaindropRepository {
     fun downloadSong(
         scope: CoroutineScope,
         song: Song,
+        bitRate: Int = 320000,
         success: () -> Unit,
         error: (errorMsg: String) -> Unit
     ) = scope.launch(Dispatchers.IO) {
@@ -265,7 +269,7 @@ object RaindropRepository {
 
         file.createNewFile()
         val stream = BufferedOutputStream(FileOutputStream(file))
-        val errorMsg = source.downloadSong(song.id, stream)
+        val errorMsg = source.downloadSong(song.id, bitRate, stream)
         if (errorMsg == null) {
             file.renameTo(File(downloadedFileName(song)))
             withContext(Dispatchers.Main) {

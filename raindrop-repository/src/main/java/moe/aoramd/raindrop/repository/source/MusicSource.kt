@@ -23,10 +23,7 @@ interface MusicSource {
 
     suspend fun loadSongs(playlistId: Long): SourceResult<List<Song>>
 
-    suspend fun loadUrl(songId: Long): String
+    suspend fun loadUrl(songId: Long, bitRate: Int): String
 
-    suspend fun downloadSong(
-        songId: Long,
-        stream: OutputStream
-    ): String?
+    suspend fun downloadSong(songId: Long, bitRate: Int, stream: OutputStream): String?
 }
