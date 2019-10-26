@@ -31,12 +31,11 @@ import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.manager.NotifyManager
 import moe.aoramd.raindrop.player.MusicPlayer
 import moe.aoramd.raindrop.player.Player
+import moe.aoramd.raindrop.service.mode.*
 
 class PlayService : Service() {
 
     companion object {
-        private const val INDEX_NONE = -1
-
         private const val MEDIA_SESSION_TAG = "Raindrop Media Session Tag"
 
         const val ACTION_SKIP_TO_PREVIOUS = "moe.aoramd.raindrop.playservice:previous"
@@ -47,6 +46,11 @@ class PlayService : Service() {
         const val ACTION_SEEK_TO_PROGRESS = "moe.aoramd.raindrop.playservice:seek"
 
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
+
+        const val MESSAGE_BUNDLE_KEY = "@_Service_key"
+        const val MESSAGE_PROGRESS_CHANGED = "@_Service_progress_changed"
+        const val MESSAGE_STATE_CHANGED = "@_Service_state_changed"
+        const val MESSAGE_SHUFFLE_MODE_CHANGED = "@_Service_shuffle_mode_changed"
 
         private val notPlaying = Song(
             Tags.UNKNOWN_ID,
@@ -65,14 +69,25 @@ class PlayService : Service() {
 
     private val musicPlayer: Player = MusicPlayer().apply {
         autoPlayAfterPrepared = true
+
         stateChangedListener = {
             playingState = it
             playingStateChanged()
             session.setPlaybackState(it)
             updateNotification()
         }
-        progressChangedListener = { playingProgressChanged(it) }
-        preparedListener = { updateMetadataAsync(playingList[playingIndex].album.coverUrl) }
+
+        progressChangedListener = {
+            playingProgressChanged(it)
+        }
+
+        preparedListener = {
+            updateMetadataAsync(playingList[playingIndex].album.coverUrl)
+        }
+
+        completedListener = {
+            session.controller.transportControls.skipToNext()
+        }
     }
 
     private var playingState: PlaybackStateCompat = PlaybackStateCompat.Builder()
@@ -81,7 +96,7 @@ class PlayService : Service() {
 
     private val playingList = mutableListOf<Song>()
 
-    private var playingIndex = INDEX_NONE
+    private var playingIndex = ShuffleMode.INDEX_NONE
         set(value) {
             if (field != value) {
                 field = value
@@ -101,8 +116,8 @@ class PlayService : Service() {
 
         override fun playingSong(): SongMedium =
             SongMedium.fromSong(
-                if (playingIndex != INDEX_NONE)
-                    playingList[INDEX_NONE]
+                if (playingIndex != ShuffleMode.INDEX_NONE)
+                    playingList[ShuffleMode.INDEX_NONE]
                 else
                     notPlaying
             )
@@ -124,9 +139,7 @@ class PlayService : Service() {
 
         override fun addPlayingListener(tag: String, listener: IPlayListener) {
             listeners[tag] = listener
-            playingSongChanged(listener)
-            playingListChanged(listener)
-            playingStateChanged(listener)
+            sendPlayingInfoAfterListenerAdd(listener)
         }
 
         override fun removePlayingListener(tag: String) {
@@ -144,7 +157,6 @@ class PlayService : Service() {
         ContextManager.registerContext(this)
 
         // initialize media session
-
         session = MediaSessionCompat(this, MEDIA_SESSION_TAG)
 
         session.apply {
@@ -192,12 +204,17 @@ class PlayService : Service() {
     /*
         action
      */
+    private val shuffle = ShuffleModeManager(ListLoopShuffleMode).apply {
+        add(SingleLoopShuffleMode)
+        add(RandomShuffleMode)
+    }
+
     private val sessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
             if (musicPlayer.playable) {
                 play()
             } else if (playingList.isNotEmpty()) {
-                if (playingIndex == INDEX_NONE)
+                if (playingIndex == ShuffleMode.INDEX_NONE)
                     playingIndex = 0
                 prepare()
             }
@@ -209,28 +226,16 @@ class PlayService : Service() {
 
         override fun onSkipToPrevious() {
             if (playingList.isNotEmpty()) {
-                playingIndex =
-                    when (playingIndex) {
-                        INDEX_NONE -> 0
-                        0 -> playingList.size - 1
-                        else -> playingIndex - 1
-                    }
+                playingIndex = shuffle.mode.previous(playingList.size, playingIndex)
                 prepare()
             }
-//            // todo other mode
         }
 
         override fun onSkipToNext() {
             if (playingList.isNotEmpty()) {
-                playingIndex =
-                    when (playingIndex) {
-                        INDEX_NONE -> 0
-                        playingList.size - 1 -> 0
-                        else -> playingIndex + 1
-                    }
+                playingIndex = shuffle.mode.next(playingList.size, playingIndex)
                 prepare()
             }
-//            // todo other mode
         }
 
         override fun onSkipToQueueItem(id: Long) {
@@ -244,6 +249,12 @@ class PlayService : Service() {
             seekTo(pos)
         }
 
+        override fun onSetShuffleMode(shuffleMode: Int) {
+            super.onSetShuffleMode(shuffleMode)
+            shuffle.changeMode()
+            playingShuffleModeChanged()
+        }
+
         override fun onCustomAction(action: String?, extras: Bundle?) {
             when (action) {
                 ACTION_LIKE -> {
@@ -251,7 +262,7 @@ class PlayService : Service() {
                     updateNotification()
                 }
                 ACTION_CLEAN_LIST -> {
-                    resetPlayingList(listOf(), INDEX_NONE)
+                    resetPlayingList(listOf(), ShuffleMode.INDEX_NONE)
                 }
                 ACTION_SEEK_TO_PROGRESS -> {
                     extras?.apply {
@@ -265,15 +276,17 @@ class PlayService : Service() {
     }
 
     private fun prepare() {
-        playingSongLength = 0
-        RaindropRepository.loadUrl(
-            scope, playingList[playingIndex],
-            forceOnline = false,
-            success = {
-            if (it != Tags.UNKNOWN_TAG)
-                musicPlayer.prepareSource(it)
-            else TODO()
-        })
+        if (playingIndex != ShuffleMode.INDEX_NONE) {
+            playingSongLength = 0
+            RaindropRepository.loadUrl(
+                scope, playingList[playingIndex],
+                forceOnline = false,
+                success = {
+                    if (it != Tags.UNKNOWN_TAG)
+                        musicPlayer.prepareSource(it)
+                    else TODO()
+                })
+        }
     }
 
     private fun play() {
@@ -302,7 +315,7 @@ class PlayService : Service() {
             playingIndex = index
             prepare()
         } else {
-            playingIndex = INDEX_NONE
+            playingIndex = ShuffleMode.INDEX_NONE
             musicPlayer.reset()
             updateMetadata(null)
             stopForeground(true)
@@ -312,15 +325,29 @@ class PlayService : Service() {
     /*
         resource change
      */
-    private fun playingSongChanged() {
-        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
-        for (pair in listeners)
-            pair.value.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
+    private fun sendPlayingInfoAfterListenerAdd(listener: IPlayListener) {
+        val song =
+            if (playingIndex == ShuffleMode.INDEX_NONE) notPlaying else playingList[playingIndex]
+        val songMediums = SongMedium.fromSongs(playingList)
+        val stateBundle = Bundle.EMPTY.apply {
+            putInt(MESSAGE_BUNDLE_KEY, playingState.state)
+        }
+        val shuffleModeBundle = Bundle.EMPTY.apply {
+            putInt(MESSAGE_BUNDLE_KEY, shuffle.mode.tag)
+        }
+        listener.apply {
+            onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
+            onPlayingListChanged(songMediums)
+            onMessageReceive(MESSAGE_STATE_CHANGED, stateBundle)
+            onMessageReceive(MESSAGE_SHUFFLE_MODE_CHANGED, shuffleModeBundle)
+        }
     }
 
-    private fun playingSongChanged(listener: IPlayListener) {
-        val song = if (playingIndex == INDEX_NONE) notPlaying else playingList[playingIndex]
-        listener.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
+    private fun playingSongChanged() {
+        val song =
+            if (playingIndex == ShuffleMode.INDEX_NONE) notPlaying else playingList[playingIndex]
+        for (pair in listeners)
+            pair.value.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
     }
 
     private fun playingListChanged() {
@@ -328,24 +355,28 @@ class PlayService : Service() {
         for (pair in listeners)
             pair.value.onPlayingListChanged(songMediums)
     }
-
-    private fun playingListChanged(listener: IPlayListener) {
-        val songMediums = SongMedium.fromSongs(playingList)
-        listener.onPlayingListChanged(songMediums)
-    }
-
     private fun playingStateChanged() {
+        val bundle = Bundle.EMPTY.apply {
+            putInt(MESSAGE_BUNDLE_KEY, playingState.state)
+        }
         for (pair in listeners)
-            pair.value.onPlayingStateChanged(playingState.state)
+            pair.value.onMessageReceive(MESSAGE_STATE_CHANGED, bundle)
     }
 
-    private fun playingStateChanged(listener: IPlayListener) {
-        listener.onPlayingStateChanged(playingState.state)
+    private fun playingShuffleModeChanged() {
+        val bundle = Bundle.EMPTY.apply {
+            putInt(MESSAGE_BUNDLE_KEY, shuffle.mode.tag)
+        }
+        for (pair in listeners)
+            pair.value.onMessageReceive(MESSAGE_SHUFFLE_MODE_CHANGED, bundle)
     }
 
     private fun playingProgressChanged(progress: Float) {
+        val bundle = Bundle.EMPTY.apply {
+            putFloat(MESSAGE_BUNDLE_KEY, progress)
+        }
         for (pair in listeners)
-            pair.value.onPlayingProgressChanged(progress)
+            pair.value.onMessageReceive(MESSAGE_PROGRESS_CHANGED, bundle)
     }
 
     /*
@@ -419,7 +450,7 @@ class PlayService : Service() {
     }
 
     private fun updateMetadata(cover: Bitmap?) {
-        val builder = if (playingIndex != INDEX_NONE) {
+        val builder = if (playingIndex != ShuffleMode.INDEX_NONE) {
             MediaMetadataCompat.Builder().apply {
                 val song = playingList[playingIndex]
                 putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, song.name)

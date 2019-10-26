@@ -1,5 +1,6 @@
 package moe.aoramd.raindrop;
 
+import android.os.Bundle;
 import moe.aoramd.raindrop.service.SongMedium;
 
 interface IPlayListener {
@@ -7,7 +8,5 @@ interface IPlayListener {
 
     void onPlayingListChanged(in List<SongMedium> songMediums);
 
-    void onPlayingProgressChanged(float progress);
-
-    void onPlayingStateChanged(int state);
+    void onMessageReceive(String message, in Bundle bundle);
 }

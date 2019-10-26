@@ -7,8 +7,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.palette.graphics.Palette
+import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.PlayService
+import moe.aoramd.raindrop.service.mode.ListLoopShuffleMode
+import moe.aoramd.raindrop.service.mode.RandomShuffleMode
+import moe.aoramd.raindrop.service.mode.SingleLoopShuffleMode
 import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
 import kotlin.math.roundToInt
 
@@ -29,6 +33,12 @@ class PlayViewModel : PlayerBindViewModel() {
         _playingList.value = songs
     }
 
+    override fun playingProgressChanged(progress: Float) {
+        super.playingProgressChanged(progress)
+        if (!isSeeking)
+            _progress.value = progress.roundToInt()
+    }
+
     override fun playingStateChanged(state: Int) {
         super.playingStateChanged(state)
         when (state) {
@@ -42,10 +52,9 @@ class PlayViewModel : PlayerBindViewModel() {
         }
     }
 
-    override fun playingProgressChanged(progress: Float) {
-        super.playingProgressChanged(progress)
-        if (!isSeeking)
-            _progress.value = progress.roundToInt()
+    override fun playingShuffleModeChanged(shuffleMode: Int) {
+        super.playingShuffleModeChanged(shuffleMode)
+
     }
 
     // variable
@@ -82,6 +91,15 @@ class PlayViewModel : PlayerBindViewModel() {
     private val _progress = MutableLiveData<Int>()
     val progress: LiveData<Int> = _progress
 
+    private val shuffleMode = MutableLiveData<Int>()
+    val shuffleModeIcon = Transformations.map(shuffleMode) {
+        when (it) {
+            SingleLoopShuffleMode.tag -> R.drawable.ic_shuffle_single_loop
+            RandomShuffleMode.tag -> R.drawable.ic_shuffle_random
+            else -> R.drawable.ic_shuffle_list_loop
+        }
+    }
+
     init {
         showProgressBar.value = false
         showPlayingList.value = false
@@ -108,9 +126,6 @@ class PlayViewModel : PlayerBindViewModel() {
     }
 
     fun changedProgress(progress: Int) {
-//        val duration = controller?.playbackState?.extras?.getLong("length") ?: 0
-//        val position: Long = progress * duration / 100
-//        controller?.transportControls?.seekTo(position)
         controller?.transportControls?.sendCustomAction(
             PlayService.ACTION_SEEK_TO_PROGRESS,
             Bundle().apply {
@@ -121,11 +136,15 @@ class PlayViewModel : PlayerBindViewModel() {
     }
 
     // click listener
-    fun onClickSkipToPrevious() {
+    fun changeShuffleMode() {
+        controller?.transportControls?.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
+    }
+
+    fun skipToPrevious() {
         controller?.transportControls?.skipToPrevious()
     }
 
-    fun onClickPlay() {
+    fun play() {
         controller?.apply {
             if (_playing.value == true)
                 transportControls.pause()
@@ -134,26 +153,26 @@ class PlayViewModel : PlayerBindViewModel() {
         }
     }
 
-    fun onClickSkipToNext() {
+    fun skipToNext() {
         controller?.transportControls?.skipToNext()
     }
 
-    fun onClickLike() {
+    fun like() {
         controller?.transportControls?.sendCustomAction(
             PlayService.ACTION_LIKE,
             Bundle.EMPTY
         )
     }
 
-    fun onClickEnableProgress() {
+    fun enableProgress() {
         showProgressBar.value = !showProgressBar.value!!
     }
 
-    fun onClickEnablePlayingList() {
+    fun enablePlayingList() {
         showPlayingList.value = true
     }
 
-    fun onClickPlayingList(index: Int) {
+    fun selectSong(index: Int) {
         controller?.transportControls?.skipToQueueItem(index.toLong())
     }
 }

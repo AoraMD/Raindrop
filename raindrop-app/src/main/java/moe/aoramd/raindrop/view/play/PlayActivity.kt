@@ -47,7 +47,7 @@ class PlayActivity : PlayerBindActivity() {
     // click listener
     val rootClickListener = object : BindingBaseAdapter.IndexClickListener {
         override fun onClick(view: View, index: Int) {
-            viewModel.onClickPlayingList(index)
+            viewModel.selectSong(index)
         }
     }
 }

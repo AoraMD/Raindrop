@@ -96,7 +96,8 @@
                                     android:layout_height="match_parent"
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
-                                    android:src="@drawable/ic_loop"
+                                    android:onClick="@{() -> viewModel.changeShuffleMode()}"
+                                    android:src="@{viewModel.shuffleModeIcon}"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
 
@@ -105,7 +106,7 @@
                                     android:layout_height="match_parent"
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
-                                    android:onClick="@{() -> viewModel.onClickSkipToPrevious()}"
+                                    android:onClick="@{() -> viewModel.skipToPrevious()}"
                                     android:src="@drawable/ic_skip_previous"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
@@ -115,7 +116,7 @@
                                     android:layout_height="match_parent"
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
-                                    android:onClick="@{() -> viewModel.onClickPlay()}"
+                                    android:onClick="@{() -> viewModel.play()}"
                                     android:src="@{viewModel.playing ? @drawable/ic_pause : @drawable/ic_play}"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
@@ -125,7 +126,7 @@
                                     android:layout_height="match_parent"
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
-                                    android:onClick="@{() -> viewModel.onClickSkipToNext()}"
+                                    android:onClick="@{() -> viewModel.skipToNext()}"
                                     android:src="@drawable/ic_skip_next"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
@@ -135,7 +136,7 @@
                                     android:layout_height="match_parent"
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
-                                    android:onClick="@{() -> viewModel.onClickLike()}"
+                                    android:onClick="@{() -> viewModel.like()}"
                                     android:src="@drawable/ic_favorite_border"
                                     android:tint="@{viewModel.uiColor}"
                                     tools:ignore="ContentDescription" />
@@ -160,7 +161,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:background="?selectableItemBackground"
-                            android:onClick="@{() -> viewModel.onClickEnableProgress()}"
+                            android:onClick="@{() -> viewModel.enableProgress()}"
                             android:src="@drawable/ic_progress"
                             android:tint="@{viewModel.uiColor}"
                             tools:ignore="ContentDescription" />
@@ -173,7 +174,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:onClick="@{() -> viewModel.onClickEnablePlayingList()}"
+                    android:onClick="@{() -> viewModel.enablePlayingList()}"
                     android:orientation="vertical">
 
                     <TextView
