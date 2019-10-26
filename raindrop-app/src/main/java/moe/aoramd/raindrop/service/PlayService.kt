@@ -81,7 +81,8 @@ class PlayService : Service() {
         }
 
         completedListener = {
-            session.controller.transportControls.skipToNext()
+            playingIndex = shuffle.mode.nextAuto(playingList.size, playingIndex)
+            prepare()
         }
     }
 

@@ -10,4 +10,5 @@ interface ShuffleMode {
 
     fun next(size: Int, currentIndex: Int): Int
     fun previous(size: Int, currentIndex: Int): Int
+    fun nextAuto(size: Int, currentIndex: Int): Int = next(size, currentIndex)
 }
