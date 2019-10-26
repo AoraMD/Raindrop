@@ -52,9 +52,9 @@ class PlayViewModel : PlayerBindViewModel() {
         }
     }
 
-    override fun playingShuffleModeChanged(shuffleMode: Int) {
-        super.playingShuffleModeChanged(shuffleMode)
-
+    override fun playingShuffleModeChanged(mode: Int) {
+        super.playingShuffleModeChanged(mode)
+        shuffleMode.value = mode
     }
 
     // variable
@@ -92,7 +92,7 @@ class PlayViewModel : PlayerBindViewModel() {
     val progress: LiveData<Int> = _progress
 
     private val shuffleMode = MutableLiveData<Int>()
-    val shuffleModeIcon = Transformations.map(shuffleMode) {
+    val shuffleModeIcon: LiveData<Int> = Transformations.map(shuffleMode) {
         when (it) {
             SingleLoopShuffleMode.tag -> R.drawable.ic_shuffle_single_loop
             RandomShuffleMode.tag -> R.drawable.ic_shuffle_random
@@ -110,6 +110,7 @@ class PlayViewModel : PlayerBindViewModel() {
         _uiColor.value = 0xff424242.toInt()
         _uiColorLight.value = 0xff6d6d6d.toInt()
         _progress.value = 0
+        shuffleMode.value = ListLoopShuffleMode.tag
     }
 
     fun loadCoverCallback(bitmap: Bitmap?) {

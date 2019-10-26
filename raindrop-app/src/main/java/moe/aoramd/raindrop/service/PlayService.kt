@@ -47,11 +47,6 @@ class PlayService : Service() {
 
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
 
-        const val MESSAGE_BUNDLE_KEY = "@_Service_key"
-        const val MESSAGE_PROGRESS_CHANGED = "@_Service_progress_changed"
-        const val MESSAGE_STATE_CHANGED = "@_Service_state_changed"
-        const val MESSAGE_SHUFFLE_MODE_CHANGED = "@_Service_shuffle_mode_changed"
-
         private val notPlaying = Song(
             Tags.UNKNOWN_ID,
             "Not Playing",
@@ -329,17 +324,11 @@ class PlayService : Service() {
         val song =
             if (playingIndex == ShuffleMode.INDEX_NONE) notPlaying else playingList[playingIndex]
         val songMediums = SongMedium.fromSongs(playingList)
-        val stateBundle = Bundle.EMPTY.apply {
-            putInt(MESSAGE_BUNDLE_KEY, playingState.state)
-        }
-        val shuffleModeBundle = Bundle.EMPTY.apply {
-            putInt(MESSAGE_BUNDLE_KEY, shuffle.mode.tag)
-        }
         listener.apply {
             onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
             onPlayingListChanged(songMediums)
-            onMessageReceive(MESSAGE_STATE_CHANGED, stateBundle)
-            onMessageReceive(MESSAGE_SHUFFLE_MODE_CHANGED, shuffleModeBundle)
+            onPlayingStateChanged(playingState.state)
+            onPlayingShuffleModeChanged(shuffle.mode.tag)
         }
     }
 
@@ -355,28 +344,20 @@ class PlayService : Service() {
         for (pair in listeners)
             pair.value.onPlayingListChanged(songMediums)
     }
+
     private fun playingStateChanged() {
-        val bundle = Bundle.EMPTY.apply {
-            putInt(MESSAGE_BUNDLE_KEY, playingState.state)
-        }
         for (pair in listeners)
-            pair.value.onMessageReceive(MESSAGE_STATE_CHANGED, bundle)
+            pair.value.onPlayingStateChanged(playingState.state)
     }
 
     private fun playingShuffleModeChanged() {
-        val bundle = Bundle.EMPTY.apply {
-            putInt(MESSAGE_BUNDLE_KEY, shuffle.mode.tag)
-        }
         for (pair in listeners)
-            pair.value.onMessageReceive(MESSAGE_SHUFFLE_MODE_CHANGED, bundle)
+            pair.value.onPlayingShuffleModeChanged(shuffle.mode.tag)
     }
 
     private fun playingProgressChanged(progress: Float) {
-        val bundle = Bundle.EMPTY.apply {
-            putFloat(MESSAGE_BUNDLE_KEY, progress)
-        }
         for (pair in listeners)
-            pair.value.onMessageReceive(MESSAGE_PROGRESS_CHANGED, bundle)
+            pair.value.onPlayingProgressChanged(progress)
     }
 
     /*

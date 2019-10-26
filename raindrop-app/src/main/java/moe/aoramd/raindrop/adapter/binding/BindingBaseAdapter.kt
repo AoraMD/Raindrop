@@ -155,4 +155,10 @@ object BindingBaseAdapter {
     fun setOnLongClickListener(view: View, listener: View.OnLongClickListener) {
         view.setOnLongClickListener(listener)
     }
+
+    @JvmStatic
+    @BindingAdapter("srcId")
+    fun setImageViewResource(imageView: ImageView, resId: Int) {
+        imageView.setImageResource(resId)
+    }
 }

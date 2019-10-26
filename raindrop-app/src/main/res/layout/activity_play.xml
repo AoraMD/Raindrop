@@ -97,8 +97,8 @@
                                     android:layout_weight="1"
                                     android:background="?selectableItemBackground"
                                     android:onClick="@{() -> viewModel.changeShuffleMode()}"
-                                    android:src="@{viewModel.shuffleModeIcon}"
                                     android:tint="@{viewModel.uiColor}"
+                                    app:srcId="@{viewModel.shuffleModeIcon}"
                                     tools:ignore="ContentDescription" />
 
                                 <ImageButton

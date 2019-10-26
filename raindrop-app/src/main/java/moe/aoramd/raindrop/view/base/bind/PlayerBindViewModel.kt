@@ -36,16 +36,21 @@ abstract class PlayerBindViewModel : ViewModel() {
             }
         }
 
-        override fun onMessageReceive(message: String, bundle: Bundle) {
+        override fun onPlayingProgressChanged(progress: Float) {
             viewModelScope.launch(Dispatchers.Main) {
-                when (message) {
-                    PlayService.MESSAGE_PROGRESS_CHANGED ->
-                        playingProgressChanged(bundle.getFloat(PlayService.MESSAGE_BUNDLE_KEY))
-                    PlayService.MESSAGE_STATE_CHANGED ->
-                        playingStateChanged(bundle.getInt(PlayService.MESSAGE_BUNDLE_KEY))
-                    PlayService.MESSAGE_SHUFFLE_MODE_CHANGED ->
-                        playingShuffleModeChanged(bundle.getInt(PlayService.MESSAGE_BUNDLE_KEY))
-                }
+                playingProgressChanged(progress)
+            }
+        }
+
+        override fun onPlayingStateChanged(state: Int) {
+            viewModelScope.launch(Dispatchers.Main) {
+                playingStateChanged(state)
+            }
+        }
+
+        override fun onPlayingShuffleModeChanged(mode: Int) {
+            viewModelScope.launch(Dispatchers.Main) {
+                playingShuffleModeChanged(mode)
             }
         }
     }
@@ -72,5 +77,5 @@ abstract class PlayerBindViewModel : ViewModel() {
 
     protected open fun playingStateChanged(state: Int) {}
 
-    protected open fun playingShuffleModeChanged(shuffleMode: Int) {}
+    protected open fun playingShuffleModeChanged(mode: Int) {}
 }

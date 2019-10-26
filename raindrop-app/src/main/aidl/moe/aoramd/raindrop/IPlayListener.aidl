@@ -8,5 +8,9 @@ interface IPlayListener {
 
     void onPlayingListChanged(in List<SongMedium> songMediums);
 
-    void onMessageReceive(String message, in Bundle bundle);
+    void onPlayingProgressChanged(float progress);
+
+    void onPlayingStateChanged(int state);
+
+    void onPlayingShuffleModeChanged(int mode);
 }
