@@ -64,20 +64,21 @@ dependencies {
     def exoplayer_version = "2.10.6"
 
     // design
-    def material_version = "1.1.0-beta01"
-    def recyclerview_version = "1.1.0-beta05"
-    def viewpager2_version = "1.0.0-beta05"
+    def material_version = "1.2.0-alpha01"
+    def recyclerview_version = "1.1.0-rc01"
+    def viewpager2_version = "1.0.0-rc01"
     def palette_version = "1.0.0"
     def circleimageview_version = "3.0.1"
     def slidinguppanel_version = "3.4.0"
     def fabs_version = "1.10.1"
+    def paging_version = "2.1.0"
 
     // glide
     def glide_version = "4.10.0"
     def glidetransformations_version = "4.0.0"
 
     // life cycle
-    def lifecycle_version = "2.2.0-beta01"
+    def lifecycle_version = "2.2.0-rc01"
 
     // databinding
     def databinding_version = "3.2.0-alpha11"
@@ -107,6 +108,7 @@ dependencies {
     implementation "de.hdodenhof:circleimageview:$circleimageview_version"
     implementation "com.sothree.slidinguppanel:library:$slidinguppanel_version"
     implementation "com.getbase:floatingactionbutton:$fabs_version"
+    implementation "androidx.paging:paging-runtime:$paging_version"
 
     // glide
     implementation "com.github.bumptech.glide:glide:$glide_version"

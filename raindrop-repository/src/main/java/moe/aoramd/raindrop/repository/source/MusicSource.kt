@@ -1,8 +1,6 @@
 package moe.aoramd.raindrop.repository.source
 
-import moe.aoramd.raindrop.repository.entity.Account
-import moe.aoramd.raindrop.repository.entity.Playlist
-import moe.aoramd.raindrop.repository.entity.Song
+import moe.aoramd.raindrop.repository.entity.*
 import java.io.OutputStream
 
 interface MusicSource {
@@ -26,4 +24,6 @@ interface MusicSource {
     suspend fun loadUrl(songId: Long, bitRate: Int): String
 
     suspend fun downloadSong(songId: Long, bitRate: Int, stream: OutputStream): String?
+
+    suspend fun searchSongs(keywords: String, page: Int, pageSize: Int): SourceResult<SearchResult>
 }

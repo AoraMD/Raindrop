@@ -31,4 +31,6 @@
     <string name="snackbar_file_exist_error">音乐文件已存在</string>
     <string name="snackbar_network_error">网络错误，请稍后重试</string>
     <string name="snackbar_request_error">解析失败，请尝试重新操作</string>
+    <string name="main_tool_search">搜索</string>
+    <string name="search_hint">搜索音乐</string>
 </resources>

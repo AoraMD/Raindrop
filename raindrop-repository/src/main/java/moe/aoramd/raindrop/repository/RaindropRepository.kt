@@ -1,6 +1,5 @@
 package moe.aoramd.raindrop.repository
 
-import android.annotation.SuppressLint
 import android.os.Environment
 import com.jakewharton.disklrucache.DiskLruCache
 import kotlinx.coroutines.*
@@ -12,11 +11,11 @@ import moe.aoramd.raindrop.repository.model.MusicModel
 import moe.aoramd.raindrop.repository.model.RaindropMusicModel
 import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.lookinglass.manager.ContextManager
+import moe.aoramd.raindrop.repository.entity.SearchResult
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-@SuppressLint("StaticFieldLeak")
 object RaindropRepository {
 
     const val MSG_FILE_EXIST_ERROR = "#_Repository_file_exist"
@@ -164,22 +163,22 @@ object RaindropRepository {
 
             when {
                 // play download
-//                File(downloadUrl).exists() -> {
-//                    GlassLog.d("play download")
-//                    withContext(Dispatchers.Main) {
-//                        success.invoke(downloadUrl)
-//                        complete.invoke()
-//                    }
-//                }
-//
-//                // play cache
-//                File(cacheUrl).exists() -> {
-//                    GlassLog.d("play cache")
-//                    withContext(Dispatchers.Main) {
-//                        success.invoke(cacheUrl)
-//                        complete.invoke()
-//                    }
-//                }
+                File(downloadUrl).exists() -> {
+                    GlassLog.d("play download")
+                    withContext(Dispatchers.Main) {
+                        success.invoke(downloadUrl)
+                        complete.invoke()
+                    }
+                }
+
+                // play cache
+                File(cacheUrl).exists() -> {
+                    GlassLog.d("play cache")
+                    withContext(Dispatchers.Main) {
+                        success.invoke(cacheUrl)
+                        complete.invoke()
+                    }
+                }
 
                 // play online
                 else -> {
@@ -279,5 +278,22 @@ object RaindropRepository {
             withContext(Dispatchers.Main) {
                 error.invoke(errorMsg)
             }
+    }
+
+    fun searchSongs(
+        scope: CoroutineScope,
+        keywords: String,
+        page: Int,
+        pageSize: Int,
+        success: (searchResult: SearchResult) -> Unit = {},
+        error: (errorMsg: String) -> Unit = {},
+        complete: () -> Unit = {}
+    ) = scope.launch(Dispatchers.IO) {
+        val result = source.searchSongs(keywords, page, pageSize)
+        if (result.success)
+            success.invoke(result.content)
+        else
+            error.invoke(result.errorMsg)
+        complete.invoke()
     }
 }

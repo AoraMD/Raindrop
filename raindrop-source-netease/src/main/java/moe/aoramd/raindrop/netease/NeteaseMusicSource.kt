@@ -9,12 +9,9 @@ import moe.aoramd.raindrop.netease.adapter.PlaylistTypeAdapter
 import moe.aoramd.raindrop.netease.adapter.SongTypeAdapter
 import moe.aoramd.raindrop.netease.interceptor.GetCookieInterceptor
 import moe.aoramd.raindrop.netease.interceptor.PutCookieInterceptor
-import moe.aoramd.raindrop.netease.connection.SourceConnection
+import moe.aoramd.raindrop.netease.api.SourceApi
 import moe.aoramd.raindrop.repository.Tags
-import moe.aoramd.raindrop.repository.entity.Account
-import moe.aoramd.raindrop.repository.entity.Album
-import moe.aoramd.raindrop.repository.entity.Playlist
-import moe.aoramd.raindrop.repository.entity.Song
+import moe.aoramd.raindrop.repository.entity.*
 import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.raindrop.repository.source.SourceResult
 import okhttp3.OkHttpClient
@@ -57,15 +54,15 @@ class NeteaseMusicSource : MusicSource {
                 .build()
         ).build()
 
-    private val connection = retrofit.create(SourceConnection::class.java)
+    private val api = retrofit.create(SourceApi::class.java)
 
-    private val connectionLogin = retrofitLogin.create(SourceConnection::class.java)
+    private val apiLogin = retrofitLogin.create(SourceApi::class.java)
 
     override val downloadPath = "/netease"
 
     override suspend fun login(phone: Long, password: String): SourceResult<Account> =
         withContext(Dispatchers.IO) {
-            val result = request { connectionLogin.login(phone, password) }
+            val result = request { apiLogin.login(phone, password) }
             if (result.success) {
                 return@withContext result.content.run {
                     if (code == 200)
@@ -82,7 +79,7 @@ class NeteaseMusicSource : MusicSource {
 
     override suspend fun updateLoginState(): Boolean =
         withContext(Dispatchers.IO) {
-            val result = request { connection.updateLoginState() }
+            val result = request { api.updateLoginState() }
             if (result.success)
                 return@withContext result.content.code == 200
             else
@@ -91,7 +88,7 @@ class NeteaseMusicSource : MusicSource {
 
     override suspend fun loadPlaylists(accountId: Long): SourceResult<List<Playlist>> =
         withContext(Dispatchers.IO) {
-            val result = request { connection.loadPlaylists(accountId) }
+            val result = request { api.loadPlaylists(accountId) }
             if (result.success) {
                 return@withContext result.content.run {
                     if (code == 200)
@@ -108,7 +105,7 @@ class NeteaseMusicSource : MusicSource {
 
     override suspend fun loadSongs(playlistId: Long): SourceResult<List<Song>> =
         withContext(Dispatchers.IO) {
-            val result = request { connection.loadSongs(playlistId) }
+            val result = request { api.loadSongs(playlistId) }
             if (result.success) {
                 return@withContext result.content.run {
                     if (code == 200)
@@ -122,7 +119,7 @@ class NeteaseMusicSource : MusicSource {
 
     override suspend fun loadUrl(songId: Long, bitRate: Int): String =
         withContext(Dispatchers.IO) {
-            val result = request { connection.loadUrl(songId, bitRate) }
+            val result = request { api.loadUrl(songId, bitRate) }
             if (result.success) {
                 return@withContext result.content.run {
                     if (code == 200) data[0].url ?: Tags.UNKNOWN_TAG
@@ -132,39 +129,63 @@ class NeteaseMusicSource : MusicSource {
         }
 
 
-    override suspend fun downloadSong(
-        songId: Long,
-        bitRate: Int,
-        stream: OutputStream
-    ): String? {
-        try {
-            val url = loadUrl(songId, bitRate)
-            val request = Request.Builder().url(url).build()
-            val response = OkHttpClient().newCall(request).execute()
+    override suspend fun downloadSong(songId: Long, bitRate: Int, stream: OutputStream): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = loadUrl(songId, bitRate)
+                val request = Request.Builder().url(url).build()
+                val response = OkHttpClient().newCall(request).execute()
 
-            if (!response.isSuccessful)
-                return MusicSource.EVENT_NETWORK_ERROR
+                if (!response.isSuccessful)
+                    return@withContext MusicSource.EVENT_NETWORK_ERROR
 
-            return if (response.body != null) {
-                val inputStream = BufferedInputStream(response.body!!.byteStream())
-                val data = ByteArray(2048)
-                var length: Int
-                while (true) {
-                    length = inputStream.read(data)
-                    if (length == -1) break
-                    stream.write(data, 0, length)
-                }
-                inputStream.close()
-                null
-            } else
-                MusicSource.EVENT_REQUEST_ERROR
-        } catch (e: Throwable) {
-            return MusicSource.MSG_IO_ERROR
-        } finally {
-            stream.flush()
-            stream.close()
+                return@withContext if (response.body != null) {
+                    val inputStream = BufferedInputStream(response.body!!.byteStream())
+                    val data = ByteArray(2048)
+                    var length: Int
+                    while (true) {
+                        length = inputStream.read(data)
+                        if (length == -1) break
+                        stream.write(data, 0, length)
+                    }
+                    inputStream.close()
+                    null
+                } else
+                    MusicSource.EVENT_REQUEST_ERROR
+            } catch (e: Throwable) {
+                return@withContext MusicSource.MSG_IO_ERROR
+            } finally {
+                stream.flush()
+                stream.close()
+            }
         }
-    }
+
+    override suspend fun searchSongs(
+        keywords: String,
+        page: Int,
+        pageSize: Int
+    ): SourceResult<SearchResult> =
+        withContext(Dispatchers.IO) {
+            val result = request { api.searchSongs(keywords, page * pageSize) }
+            if (result.success) {
+                return@withContext result.content.run {
+                    if (code == 200)
+                        SourceResult(
+                            true,
+                            resultContent = SearchResult(data.songs, data.songCount)
+                        )
+                    else SourceResult(false, resultErrorMsg = MusicSource.EVENT_REQUEST_ERROR)
+                }
+            } else
+                return@withContext SourceResult<SearchResult>(
+                    false,
+                    MusicSource.EVENT_NETWORK_ERROR
+                )
+        }
+
+    /*
+        Private Functions
+     */
 
     private suspend fun <T> request(function: suspend () -> Response<T>): RequestResult<T> {
         val response: Response<T>

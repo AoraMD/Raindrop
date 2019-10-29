@@ -48,7 +48,7 @@ class SongTypeAdapter : TypeAdapter<Song>() {
                 when (nextName()) {
                     "id" -> id = nextLong()
                     "name" -> name = nextStringNullable()
-                    "ar" -> {
+                    "ar", "artists" -> {
                         beginArray()
                         while (hasNext()) {
                             var authorId = Tags.OFFLINE_ID
@@ -66,7 +66,7 @@ class SongTypeAdapter : TypeAdapter<Song>() {
                         }
                         endArray()
                     }
-                    "al" -> {
+                    "al", "album" -> {
                         var albumId = Tags.OFFLINE_ID
                         var albumName = Tags.OFFLINE_TAG
                         var albumCoverUrl = Tags.OFFLINE_TAG

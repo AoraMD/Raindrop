@@ -9,8 +9,8 @@ import moe.aoramd.raindrop.databinding.LayoutSongItemBinding
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.playlist.PlaylistActivity
 
-class PlaylistListAdapter(val activity: PlaylistActivity) :
-    RecyclerView.Adapter<PlaylistListAdapter.Companion.SongViewHolder>() {
+class PlaylistAdapter(val activity: PlaylistActivity) :
+    RecyclerView.Adapter<PlaylistAdapter.Companion.SongViewHolder>() {
 
     companion object {
         class SongViewHolder(val binding: LayoutSongItemBinding) :

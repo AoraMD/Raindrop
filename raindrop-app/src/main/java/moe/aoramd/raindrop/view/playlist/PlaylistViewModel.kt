@@ -39,8 +39,7 @@ class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    class PlaylistViewModelFactory(private val playlist: Playlist) :
-        ViewModelProvider.Factory {
+    class Factory(private val playlist: Playlist) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T =
             PlaylistViewModel(playlist) as T
     }

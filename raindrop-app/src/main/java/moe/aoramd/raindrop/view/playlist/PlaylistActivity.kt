@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.adapter.binding.BindingBaseAdapter
-import moe.aoramd.raindrop.adapter.list.PlaylistListAdapter
+import moe.aoramd.raindrop.adapter.list.PlaylistAdapter
 import moe.aoramd.raindrop.databinding.ActivityPlaylistBinding
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.entity.Playlist
@@ -36,7 +36,7 @@ class PlaylistActivity : BarControlActivity() {
     private lateinit var binding: ActivityPlaylistBinding
 
     private val viewModel: PlaylistViewModel by viewModels {
-        PlaylistViewModel.PlaylistViewModelFactory(intent.getParcelableExtra(INTENT_PLAYLIST)!!)
+        PlaylistViewModel.Factory(intent.getParcelableExtra(INTENT_PLAYLIST)!!)
     }
 
     override val barController: BarControlViewModel by lazy { viewModel }
@@ -50,7 +50,7 @@ class PlaylistActivity : BarControlActivity() {
         binding.lifecycleOwner = this
 
         // song list
-        binding.adapter = PlaylistListAdapter(this)
+        binding.adapter = PlaylistAdapter(this)
         binding.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
@@ -108,7 +108,7 @@ class PlaylistActivity : BarControlActivity() {
     val operationClickListener = object : BindingBaseAdapter.IndexClickListener {
         override fun onClick(view: View, index: Int) {
             PopupMenu(this@PlaylistActivity, view).apply {
-                inflate(R.menu.playlist_item_popup)
+                inflate(R.menu.playlist_item_operation)
                 setOnMenuItemClickListener {
                     var result = true
                     when (it.itemId) {

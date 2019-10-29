@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 
 import moe.aoramd.raindrop.R
-import moe.aoramd.raindrop.adapter.list.MusicListAdapter
+import moe.aoramd.raindrop.adapter.list.MusicAdapter
 import moe.aoramd.raindrop.databinding.FragmentMusicBinding
 import moe.aoramd.raindrop.manager.AccountManager
 import moe.aoramd.raindrop.repository.source.MusicSource
@@ -38,7 +38,7 @@ class MusicFragment : Fragment() {
         binding.lifecycleOwner = this
 
         // playlist list
-        binding.adapter = MusicListAdapter(activity!!)
+        binding.adapter = MusicAdapter(activity!!)
         binding.layoutManager =
             LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
 

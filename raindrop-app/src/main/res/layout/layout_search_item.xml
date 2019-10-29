@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="rootClickListener"
+            type="moe.aoramd.raindrop.adapter.binding.BindingSearchAdapter.SongClickListener" />
+
+        <variable
+            name="operationClickListener"
+            type="moe.aoramd.raindrop.adapter.binding.BindingSearchAdapter.SongClickListener" />
+
+        <variable
+            name="song"
+            type="moe.aoramd.raindrop.repository.entity.Song" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:onClick="@{(view) -> rootClickListener.onClick(view, song)}">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:imageUrl="@{song.album.coverUrl}"
+                    tools:ignore="ContentDescription"
+                    tools:src="@drawable/img_placeholder" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/fg_gradient_right" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@{song.name}"
+                    android:textColor="?android:textColorPrimary"
+                    tools:text="Song Name" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{@string/playlist_song_info_tag(song.authorsName, song.album.name)}"
+                    android:textColor="?android:textColorSecondary"
+                    android:textSize="12sp"
+                    tools:text="Author - Album" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:background="?selectableItemBackground"
+                android:contentDescription="@string/description_operation_menu"
+                android:onClick="@{(view) -> operationClickListener.onClick(view, song)}"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:src="@drawable/ic_more_vert"
+                android:tint="@color/colorFront" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
