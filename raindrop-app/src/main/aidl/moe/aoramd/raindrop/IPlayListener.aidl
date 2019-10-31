@@ -13,4 +13,6 @@ interface IPlayListener {
     void onPlayingStateChanged(int state);
 
     void onPlayingShuffleModeChanged(int mode);
+
+    void eventListener(String event);
 }

@@ -15,16 +15,22 @@ data class Account(
     val backgroundUrl: String
 ) {
     companion object {
-        val logoutAccount = Account(
-            Tags.OFFLINE_ID, Tags.OFFLINE_TAG,
-            Tags.OFFLINE_TAG,
-            Tags.OFFLINE_TAG, Tags.OFFLINE_TAG
+        const val OFFLINE_ID = -10L
+        const val OFFLINE_TAG = "#_Account_offline"
+
+        const val LOADING_ID = -20L
+        const val LOADING_TAG = "#_Account_loading"
+
+        val offline = Account(
+            OFFLINE_ID, OFFLINE_TAG,
+            OFFLINE_TAG,
+            OFFLINE_TAG, OFFLINE_TAG
         )
 
-        val loadingAccount = Account(
-            Tags.LOADING_ID, Tags.LOADING_TAG,
-            Tags.LOADING_TAG,
-            Tags.LOADING_TAG, Tags.LOADING_TAG
+        val loading = Account(
+            LOADING_ID, LOADING_TAG,
+            LOADING_TAG,
+            LOADING_TAG, LOADING_TAG
         )
     }
 }

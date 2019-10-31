@@ -44,7 +44,6 @@
                     android:layout_height="match_parent"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_placeholder"
                     app:imageUrl="@{viewModel.playlist.coverUrl}"
                     tools:ignore="ContentDescription" />
 

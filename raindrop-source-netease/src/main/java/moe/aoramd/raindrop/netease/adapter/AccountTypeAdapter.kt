@@ -20,11 +20,11 @@ class AccountTypeAdapter : TypeAdapter<Account>() {
     }
 
     override fun read(`in`: JsonReader?): Account {
-        var id = Account.logoutAccount.id
-        var nickname = Account.logoutAccount.nickname
-        var signature = Account.logoutAccount.signature
-        var avatarUrl = Account.logoutAccount.avatarUrl
-        var backgroundUrl = Account.logoutAccount.backgroundUrl
+        var id = Account.offline.id
+        var nickname = Account.offline.nickname
+        var signature = Account.offline.signature
+        var avatarUrl = Account.offline.avatarUrl
+        var backgroundUrl = Account.offline.backgroundUrl
         `in`?.apply {
             beginObject()
             while (hasNext()) {

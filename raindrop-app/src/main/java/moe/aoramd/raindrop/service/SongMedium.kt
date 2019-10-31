@@ -46,7 +46,7 @@ data class SongMedium(
         fun toSong(songMedium: SongMedium): Song {
             val id = songMedium.id
             val name = songMedium.name
-            if (name == PARCEL_ERROR_TAG) return Song.offline
+            if (name == PARCEL_ERROR_TAG) return Song.unknown
             val authors = mutableListOf<Author>()
             for (index in songMedium.authorIds.indices) {
                 authors.add(
@@ -58,7 +58,7 @@ data class SongMedium(
             }
             if (songMedium.albumName == PARCEL_ERROR_TAG
                 || songMedium.albumCoverUrl == PARCEL_ERROR_TAG
-            ) return Song.offline
+            ) return Song.unknown
             val album = Album(songMedium.albumId, songMedium.albumName, songMedium.albumCoverUrl)
             return Song(id, name, authors, album)
         }

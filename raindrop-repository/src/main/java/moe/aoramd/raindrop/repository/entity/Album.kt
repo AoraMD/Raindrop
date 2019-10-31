@@ -15,10 +15,10 @@ data class Album(
     val coverUrl: String
 ) : Parcelable {
     companion object {
-        val offline = Album(
-            Tags.OFFLINE_ID,
-            Tags.OFFLINE_TAG,
-            Tags.OFFLINE_TAG
+        val unknown = Album(
+            Tags.UNKNOWN_ID,
+            Tags.UNKNOWN_TAG,
+            Tags.UNKNOWN_TAG
         )
     }
 }

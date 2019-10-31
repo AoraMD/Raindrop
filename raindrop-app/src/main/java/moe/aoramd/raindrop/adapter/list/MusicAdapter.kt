@@ -34,8 +34,8 @@ class MusicAdapter(val activity: FragmentActivity) :
 
     private val headers = listOf(
         MusicHeader(
-            R.string.music_local_music,
-            R.drawable.ic_local_music,
+            R.string.music_recent_play,
+            R.drawable.ic_history,
             {}),
         MusicHeader(R.string.music_radio, R.drawable.ic_radio, {}),
         MusicHeader(R.string.music_download, R.drawable.ic_download, {})

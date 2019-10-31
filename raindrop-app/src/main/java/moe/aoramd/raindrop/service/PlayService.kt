@@ -7,16 +7,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,6 +30,7 @@ import moe.aoramd.raindrop.manager.NotifyManager
 import moe.aoramd.raindrop.player.MusicPlayer
 import moe.aoramd.raindrop.player.Player
 import moe.aoramd.raindrop.service.mode.*
+import java.lang.Exception
 
 class PlayService : Service() {
 
@@ -46,6 +45,8 @@ class PlayService : Service() {
         const val ACTION_SEEK_TO_PROGRESS = "moe.aoramd.raindrop.playservice:seek"
 
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
+
+        const val EVENT_LOAD_SONG_FAILED = "#_Play_Service_load_song_failed"
 
         private val notPlaying = Song(
             Tags.UNKNOWN_ID,
@@ -151,6 +152,8 @@ class PlayService : Service() {
 
         // register context
         ContextManager.registerContext(this)
+
+        Picasso.setSingletonInstance(Picasso.Builder(ContextManager.context).build())
 
         // initialize media session
         session = MediaSessionCompat(this, MEDIA_SESSION_TAG)
@@ -280,7 +283,10 @@ class PlayService : Service() {
                 success = {
                     if (it != Tags.UNKNOWN_TAG)
                         musicPlayer.prepareSource(it)
-                    else TODO()
+                    else {
+                        sendEvent(EVENT_LOAD_SONG_FAILED)
+                        musicPlayer.reset()
+                    }
                 })
         }
     }
@@ -362,6 +368,14 @@ class PlayService : Service() {
     }
 
     /*
+        Event
+     */
+    private fun sendEvent(event: String) {
+        for (pair in listeners)
+            pair.value.eventListener(event)
+    }
+
+    /*
         notification
      */
     private val channelId by lazy {
@@ -402,33 +416,22 @@ class PlayService : Service() {
     }
 
     /*
-        metadata
+        Metadata
      */
     private fun updateMetadataAsync(url: String) {
         updateMetadata(null)
-        Glide.with(this)
-            .asBitmap()
+        Picasso.get()
             .load(url)
-            .listener(object : RequestListener<Bitmap> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Bitmap>?,
-                    isFirstResource: Boolean
-                ): Boolean = false
+            .into(object : Target {
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
 
-                override fun onResourceReady(
-                    resource: Bitmap?,
-                    model: Any?,
-                    target: Target<Bitmap>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    updateMetadata(resource)
-                    return false
+                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
+
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                    updateMetadata(bitmap)
                 }
+
             })
-            .submit()
     }
 
     private fun updateMetadata(cover: Bitmap?) {

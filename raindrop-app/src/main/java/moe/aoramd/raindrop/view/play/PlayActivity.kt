@@ -6,11 +6,14 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.adapter.binding.BindingBaseAdapter
 import moe.aoramd.raindrop.adapter.list.PlayPlayingAdapter
 import moe.aoramd.raindrop.databinding.ActivityPlayBinding
+import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.view.base.bind.PlayerBindActivity
 import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
 
@@ -29,25 +32,38 @@ class PlayActivity : PlayerBindActivity() {
     override val binder: PlayerBindViewModel by lazy { viewModel }
 
 
-    // override functions
+    // Override Functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // initialize data binding
+        // Initialize Data Binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_play)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        // playing list
+        // Playing List
         binding.adapter = PlayPlayingAdapter(this)
         binding.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        // Event Listener
+        viewModel.event.observe(this, Observer {
+            when (it) {
+                PlayService.EVENT_LOAD_SONG_FAILED -> onLoadSongFailedEvent()
+            }
+        })
     }
 
-    // click listener
+    // Click Listener
     val rootClickListener = object : BindingBaseAdapter.IndexClickListener {
         override fun onClick(view: View, index: Int) {
             viewModel.selectSong(index)
         }
+    }
+
+    // Event Operations
+    private fun onLoadSongFailedEvent() {
+        Snackbar.make(binding.root, R.string.snackbar_load_song_failed, Snackbar.LENGTH_SHORT)
+            .show()
     }
 }

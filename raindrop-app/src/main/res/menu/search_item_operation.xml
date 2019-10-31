@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/search_item_popup_play_as_next"
+        android:title="@string/play_as_next" />
+
+    <item
+        android:id="@+id/search_item_popup_add_to_playlist"
+        android:title="@string/add_to_playlist" />
+
+    <item
+        android:id="@+id/search_item_popup_download"
+        android:title="@string/download" />
+
+    <item
+        android:id="@+id/search_item_popup_share"
+        android:title="@string/share" />
+</menu>

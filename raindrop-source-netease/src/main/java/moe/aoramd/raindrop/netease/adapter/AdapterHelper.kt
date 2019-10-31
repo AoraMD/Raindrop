@@ -8,7 +8,7 @@ object AdapterHelper {
     internal fun JsonReader.nextStringNullable(): String {
         if (peek() == JsonToken.NULL) {
             nextNull()
-            return Tags.OFFLINE_TAG
+            return Tags.UNKNOWN_TAG
         }
         return nextString()
     }

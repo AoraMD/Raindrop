@@ -11,6 +11,6 @@ object AccountManager {
         get() = accountLiveData.value ?: throw IllegalStateException("account not initialize")
 
     init {
-        accountLiveData.value = Account.logoutAccount
+        accountLiveData.value = Account.offline
     }
 }

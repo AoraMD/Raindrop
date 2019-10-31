@@ -73,9 +73,9 @@ dependencies {
     def fabs_version = "1.10.1"
     def paging_version = "2.1.0"
 
-    // glide
-    def glide_version = "4.10.0"
-    def glidetransformations_version = "4.0.0"
+    // Picasso
+    def picasso_version = "2.71828"
+    def transformations_version = "2.2.1"
 
     // life cycle
     def lifecycle_version = "2.2.0-rc01"
@@ -110,9 +110,9 @@ dependencies {
     implementation "com.getbase:floatingactionbutton:$fabs_version"
     implementation "androidx.paging:paging-runtime:$paging_version"
 
-    // glide
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation "jp.wasabeef:glide-transformations:$glidetransformations_version"
+    // Picasso
+    implementation "com.squareup.picasso:picasso:$picasso_version"
+    implementation "jp.wasabeef:picasso-transformations:$transformations_version"
 
     // lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -128,5 +128,4 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     kapt "androidx.databinding:compiler:$databinding_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
 }

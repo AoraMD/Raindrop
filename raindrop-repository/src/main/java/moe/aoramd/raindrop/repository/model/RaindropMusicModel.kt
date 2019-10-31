@@ -40,7 +40,7 @@ object RaindropMusicModel : MusicModel {
 
     override suspend fun loadAccount(accountId: Long): Account =
         withContext(Dispatchers.IO) {
-            return@withContext accountDao.query(accountId) ?: Account.logoutAccount
+            return@withContext accountDao.query(accountId) ?: Account.offline
         }
 
     override suspend fun updateAccount(account: Account) =
@@ -76,7 +76,7 @@ object RaindropMusicModel : MusicModel {
                     it.id,
                     it.name,
                     authorDao.queryAll(it.authors),
-                    albums[it.album] ?: Album.offline
+                    albums[it.album] ?: Album.unknown
                 )
             }
         }

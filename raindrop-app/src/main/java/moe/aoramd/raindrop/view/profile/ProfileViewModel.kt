@@ -33,16 +33,16 @@ class ProfileViewModel : ViewModel() {
         updating.value = true
         RaindropRepository.updateLoginState(viewModelScope) {
             if (!it)
-                AccountManager.accountLiveData.value = Account.logoutAccount
+                AccountManager.accountLiveData.value = Account.offline
             updating.value = false
         }
     }
 
     fun changeAccount() {
-        if (AccountManager.account == Account.loadingAccount)
+        if (AccountManager.account == Account.loading)
             return
         when (AccountManager.account) {
-            Account.logoutAccount -> _event.value = EVENT_LOGIN
+            Account.offline -> _event.value = EVENT_LOGIN
             else -> _event.value = EVENT_LOGOUT
         }
     }

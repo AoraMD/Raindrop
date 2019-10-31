@@ -25,11 +25,11 @@ data class Song(
 
 
     companion object {
-        val offline = Song(
-            Tags.OFFLINE_ID,
-            Tags.OFFLINE_TAG,
+        val unknown = Song(
+            Tags.UNKNOWN_ID,
+            Tags.UNKNOWN_TAG,
             listOf(),
-            Album.offline
+            Album.unknown
         )
     }
 }

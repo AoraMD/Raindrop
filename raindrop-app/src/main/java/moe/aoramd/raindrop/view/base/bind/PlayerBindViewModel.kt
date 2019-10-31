@@ -53,6 +53,12 @@ abstract class PlayerBindViewModel : ViewModel() {
                 playingShuffleModeChanged(mode)
             }
         }
+
+        override fun eventListener(event: String) {
+            viewModelScope.launch(Dispatchers.Main) {
+                eventListener(event)
+            }
+        }
     }
 
     internal fun removePlayingListenerIfNeed() {
@@ -78,4 +84,6 @@ abstract class PlayerBindViewModel : ViewModel() {
     protected open fun playingStateChanged(state: Int) {}
 
     protected open fun playingShuffleModeChanged(mode: Int) {}
+
+    protected open fun eventListener(event: String) {}
 }

@@ -8,7 +8,7 @@
     <string name="description_like">Like</string>
     <string name="main_music">Music</string>
     <string name="main_profile">Profile</string>
-    <string name="music_local_music">Local Music</string>
+    <string name="music_recent_play">Recent Play</string>
     <string name="music_download">Download</string>
     <string name="music_radio">Private Radio</string>
     <string name="profile_settings">Settings</string>
@@ -21,10 +21,11 @@
     <string name="snackbar_file_exist_error">Song file is existed</string>
     <string name="snackbar_downloading_error">Song is downloading now</string>
     <string name="snackbar_download_successfully">Download successfully</string>
-    <string name="playlist_item_popup_play_as_next">Play As Next</string>
-    <string name="playlist_item_popup_download">Download</string>
-    <string name="playlist_item_popup_share">Share</string>
-    <string name="playlist_item_popup_remove">Remove From Playlist</string>
+    <string name="snackbar_load_song_failed">Load Song Failed</string>
+    <string name="play_as_next">Play As Next</string>
+    <string name="download">Download</string>
+    <string name="share">Share</string>
+    <string name="remove_from_playlist">Remove From Playlist</string>
     <string name="app_list_loading">Loading (。_。)</string>
     <string name="login_hint_phone">Phone</string>
     <string name="login_hint_password">Password</string>
@@ -32,4 +33,5 @@
     <string name="login_cancel">Cancel</string>
     <string name="main_tool_search">Search</string>
     <string name="search_hint">Search Music</string>
+    <string name="add_to_playlist">Add To Playlist</string>
 </resources>

@@ -38,10 +38,10 @@ class SongTypeAdapter : TypeAdapter<Song>() {
     }
 
     override fun read(`in`: JsonReader?): Song {
-        var id = Tags.OFFLINE_ID
-        var name = Tags.OFFLINE_TAG
+        var id = Tags.UNKNOWN_ID
+        var name = Tags.UNKNOWN_TAG
         val authors = mutableListOf<Author>()
-        var album: Album = Album.offline
+        var album: Album = Album.unknown
         `in`?.apply {
             beginObject()
             while (hasNext()) {
@@ -51,8 +51,8 @@ class SongTypeAdapter : TypeAdapter<Song>() {
                     "ar", "artists" -> {
                         beginArray()
                         while (hasNext()) {
-                            var authorId = Tags.OFFLINE_ID
-                            var authorName = Tags.OFFLINE_TAG
+                            var authorId = Tags.UNKNOWN_ID
+                            var authorName = Tags.UNKNOWN_TAG
                             beginObject()
                             while (hasNext()) {
                                 when (nextName()) {
@@ -67,9 +67,9 @@ class SongTypeAdapter : TypeAdapter<Song>() {
                         endArray()
                     }
                     "al", "album" -> {
-                        var albumId = Tags.OFFLINE_ID
-                        var albumName = Tags.OFFLINE_TAG
-                        var albumCoverUrl = Tags.OFFLINE_TAG
+                        var albumId = Tags.UNKNOWN_ID
+                        var albumName = Tags.UNKNOWN_TAG
+                        var albumCoverUrl = Tags.UNKNOWN_TAG
                         beginObject()
                         while (hasNext()) {
                             when (nextName()) {

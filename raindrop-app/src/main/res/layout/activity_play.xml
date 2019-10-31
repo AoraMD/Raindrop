@@ -60,7 +60,7 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:imageUrl="@{viewModel.imageUrl}"
+                            app:imageUrlAsBitmap="@{viewModel.imageUrl}"
                             app:loadUrlCallback="@{viewModel::loadCoverCallback}"
                             tools:ignore="ContentDescription" />
 

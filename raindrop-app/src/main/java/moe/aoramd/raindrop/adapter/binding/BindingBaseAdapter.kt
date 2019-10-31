@@ -2,6 +2,7 @@ package moe.aoramd.raindrop.adapter.binding
 
 import android.animation.ObjectAnimator
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
@@ -10,15 +11,12 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
-import jp.wasabeef.glide.transformations.BlurTransformation
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
+import jp.wasabeef.picasso.transformations.BlurTransformation
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.Tags
+import java.lang.Exception
 
 object BindingBaseAdapter {
 
@@ -27,58 +25,70 @@ object BindingBaseAdapter {
         fun onClick(view: View, index: Int)
     }
 
-    @JvmStatic
-    @BindingAdapter("imageUrl", "loadUrlCallback", requireAll = false)
-    fun loadImageFromUrl(
-        imageView: ImageView,
-        url: String?,
-        callback: LoadImageUrlCallback?
-    ) {
-        if (url != null && url == Tags.OFFLINE_TAG)
-            imageView.setImageResource(R.drawable.img_placeholder)
-        else
-            Glide.with(imageView.context)
-                .asBitmap()
-                .load(url)
-                .placeholder(R.drawable.img_placeholder)
-                .override(imageView.width, imageView.height)
-                .listener(object : RequestListener<Bitmap> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Bitmap>?,
-                        isFirstResource: Boolean
-                    ): Boolean = false
-
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        model: Any?,
-                        target: Target<Bitmap>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        callback?.onComplete(resource)
-                        return false
-                    }
-                })
-                .into(imageView)
-    }
-
     interface LoadImageUrlCallback {
         fun onComplete(bitmap: Bitmap?)
     }
 
     @JvmStatic
-    @BindingAdapter("blurImageUrl")
-    fun loadBlurImageFromUrl(imageView: ImageView, url: String) {
-        if (url == Tags.OFFLINE_TAG)
+    @BindingAdapter("imageUrl")
+    fun loadImageFromUrl(
+        imageView: ImageView,
+        url: String?
+    ) {
+        if (url == null || url == Tags.UNKNOWN_TAG)
             imageView.setImageResource(R.drawable.img_placeholder)
         else
-            Glide.with(imageView.context)
+            Picasso.get()
                 .load(url)
+                .placeholder(R.drawable.img_placeholder)
+                .into(imageView)
+    }
+
+    @JvmStatic
+    @BindingAdapter("imageUrlAsBitmap", "loadUrlCallback", requireAll = false)
+    fun loadImageFromUrlWithCallback(
+        imageView: ImageView,
+        url: String?,
+        callback: LoadImageUrlCallback?
+    ) {
+        if (url == null || url == Tags.UNKNOWN_TAG)
+            imageView.setImageResource(R.drawable.img_placeholder)
+        else
+            Picasso.get()
+                .load(url)
+                .placeholder(R.drawable.img_placeholder)
+                .into(object : Target {
+                    override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                        callback?.onComplete(bitmap)
+                        imageView.setImageBitmap(bitmap)
+                    }
+
+                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                        imageView.setImageDrawable(placeHolderDrawable)
+                    }
+
+                    override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                        imageView.setImageDrawable(errorDrawable)
+                    }
+                })
+    }
+
+    @JvmStatic
+    @BindingAdapter("blurImageUrl")
+    fun loadBlurImageFromUrl(imageView: ImageView, url: String) {
+        if (url == Tags.UNKNOWN_TAG)
+            imageView.setImageResource(R.drawable.img_placeholder)
+        else
+            Picasso.get()
+                .load(url)
+                .transform(
+                    BlurTransformation(
+                        imageView.context,
+                        25,
+                        3
+                    )
+                )
                 .placeholder(R.drawable.bg_blur_placeholder)
-                .override(imageView.width, imageView.height)
-                .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
                 .into(imageView)
     }
 

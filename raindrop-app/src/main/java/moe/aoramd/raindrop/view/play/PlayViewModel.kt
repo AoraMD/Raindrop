@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.palette.graphics.Palette
+import moe.aoramd.lookinglass.lifecycle.EventLiveData
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.PlayService
@@ -52,6 +53,10 @@ class PlayViewModel : PlayerBindViewModel() {
         }
     }
 
+    override fun eventListener(event: String) {
+        _event.value = event
+    }
+
     override fun playingShuffleModeChanged(mode: Int) {
         super.playingShuffleModeChanged(mode)
         shuffleMode.value = mode
@@ -61,6 +66,9 @@ class PlayViewModel : PlayerBindViewModel() {
     private var isSeeking = false
 
     // live data
+    private val _event = EventLiveData<String>()
+    val event: LiveData<String> = _event
+
     val showProgressBar = MutableLiveData<Boolean>()
 
     val showPlayingList = MutableLiveData<Boolean>()
@@ -106,7 +114,7 @@ class PlayViewModel : PlayerBindViewModel() {
         _playingList.value = listOf()
         _playingIndex.value = -1
         _playing.value = false
-        playingSong.value = Song.offline
+        playingSong.value = Song.unknown
         _uiColor.value = 0xff424242.toInt()
         _uiColorLight.value = 0xff6d6d6d.toInt()
         _progress.value = 0
@@ -136,7 +144,7 @@ class PlayViewModel : PlayerBindViewModel() {
         isSeeking = false
     }
 
-    // click listener
+    // Click Listeners
     fun changeShuffleMode() {
         controller?.transportControls?.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
     }
