@@ -18,7 +18,17 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.Tags
 import java.lang.Exception
 
+/**
+ *  basic data binding adapter
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object BindingBaseAdapter {
+
+    /*
+        image view
+     */
 
     interface LoadImageUrlCallback {
         fun onComplete(bitmap: Bitmap?)
@@ -70,32 +80,39 @@ object BindingBaseAdapter {
 
     @JvmStatic
     @BindingAdapter("blurImageUrl")
-    fun loadBlurImageFromUrl(imageView: ImageView, url: String) {
+    fun loadBlurImageFromUrl(
+        imageView: ImageView,
+        url: String
+    ) {
         if (url == Tags.UNKNOWN_TAG)
             imageView.setImageResource(R.drawable.img_placeholder)
         else
             Picasso.get()
                 .load(url)
-                .transform(
-                    BlurTransformation(
-                        imageView.context,
-                        25,
-                        3
-                    )
-                )
+                .transform(BlurTransformation(imageView.context, 25, 3))
                 .placeholder(R.drawable.bg_blur_placeholder)
                 .into(imageView)
     }
 
     @JvmStatic
-    @BindingAdapter("iconRes")
-    fun setIconResource(imageView: ImageView, resId: Int) {
+    @BindingAdapter("srcId")
+    fun setImageViewResource(
+        imageView: ImageView,
+        resId: Int
+    ) {
         imageView.setImageResource(resId)
     }
 
+    /*
+        swipe refresh layout
+     */
+
     @JvmStatic
     @BindingAdapter("refreshing")
-    fun setRefreshingState(swipeRefreshLayout: SwipeRefreshLayout, refreshing: Boolean) {
+    fun setRefreshingState(
+        swipeRefreshLayout: SwipeRefreshLayout,
+        refreshing: Boolean
+    ) {
         if (swipeRefreshLayout.isRefreshing != refreshing)
             swipeRefreshLayout.isRefreshing = refreshing
     }
@@ -120,6 +137,10 @@ object BindingBaseAdapter {
         }
     }
 
+    /*
+        recycler view
+     */
+
     @JvmStatic
     @BindingAdapter("layoutManager")
     fun setRecyclerViewLayoutManager(
@@ -129,9 +150,16 @@ object BindingBaseAdapter {
         recyclerView.layoutManager = layoutManager
     }
 
+    /*
+        view
+     */
+
     @JvmStatic
     @BindingAdapter("fadeVisible")
-    fun changeVisibilityWithFadeAnimation(view: View, visibility: Int) {
+    fun changeVisibilityWithFadeAnimation(
+        view: View,
+        visibility: Int
+    ) {
         when {
             (view.visibility == View.VISIBLE && visibility == View.GONE)
                     || (view.visibility == View.VISIBLE && visibility == View.INVISIBLE) -> {
@@ -157,13 +185,10 @@ object BindingBaseAdapter {
 
     @JvmStatic
     @BindingAdapter("onLongClick")
-    fun setOnLongClickListener(view: View, listener: View.OnLongClickListener) {
+    fun setOnLongClickListener(
+        view: View,
+        listener: View.OnLongClickListener
+    ) {
         view.setOnLongClickListener(listener)
-    }
-
-    @JvmStatic
-    @BindingAdapter("srcId")
-    fun setImageViewResource(imageView: ImageView, resId: Int) {
-        imageView.setImageResource(resId)
     }
 }

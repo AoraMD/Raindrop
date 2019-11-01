@@ -24,6 +24,10 @@ data class Song(
             } else "No Author"
 
     companion object {
+
+        const val NONE_ID: Long = -0x94b64bdadeb9927
+        const val NONE_TAG: String = "&Song.none"
+
         val unknown = Song(
             Tags.UNKNOWN_ID,
             Tags.UNKNOWN_TAG,
@@ -34,6 +38,13 @@ data class Song(
         val loading = Song(
             Tags.LOADING_ID,
             Tags.LOADING_TAG,
+            listOf(),
+            Album.unknown
+        )
+
+        val none = Song(
+            NONE_ID,
+            NONE_TAG,
             listOf(),
             Album.unknown
         )

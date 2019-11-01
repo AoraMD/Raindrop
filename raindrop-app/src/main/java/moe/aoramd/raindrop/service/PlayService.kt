@@ -23,7 +23,6 @@ import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.Tags
-import moe.aoramd.raindrop.repository.entity.Album
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.manager.NotifyManager
@@ -34,44 +33,57 @@ import moe.aoramd.raindrop.service.mode.*
 import java.lang.Exception
 import java.util.*
 
+/**
+ *  raindrop backend audio play service
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlayService : Service() {
 
     companion object {
+
+        // media session root tag
         private const val MEDIA_SESSION_TAG = "Raindrop Media Session Tag"
 
+        // control actions
         const val ACTION_SKIP_TO_PREVIOUS = "moe.aoramd.raindrop.playservice:previous"
         const val ACTION_PLAY = "moe.aoramd.raindrop.playservice:play"
         const val ACTION_PAUSE = "moe.aoramd.raindrop.playservice:pause"
         const val ACTION_SKIP_TO_NEXT = "moe.aoramd.raindrop.playservice:next"
         const val ACTION_LIKE = "moe.aoramd.raindrop.playservice:like"
         const val ACTION_SEEK_TO_PROGRESS = "moe.aoramd.raindrop.playservice:seek"
-
         const val ACTION_CLEAN_LIST = "moe.aoramd.raindrop.playservice:clean"
 
+        // events
         const val EVENT_LOAD_SONG_FAILED = "#_Play_Service_load_song_failed"
-
-        private val notPlaying = Song(
-            Tags.UNKNOWN_ID,
-            "Not Playing",
-            listOf(),
-            Album(Tags.UNKNOWN_ID, Tags.UNKNOWN_TAG, Tags.UNKNOWN_TAG)
-        )
     }
 
-    // coroutines
+    /*
+        coroutines
+     */
+
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.Main + job)
 
-    // service
+    /*
+        listeners
+     */
+
     private val listeners = mutableMapOf<String, IPlayListener>()
 
+    /*
+        media player
+     */
+
     private val musicPlayer: Player = MusicPlayer().apply {
+
         autoPlayAfterPrepared = true
 
         stateChangedListener = {
             playingState = it
-            playingStateChanged()
             session.setPlaybackState(it)
+            playingStateChanged()
             updateNotification()
         }
 
@@ -83,7 +95,7 @@ class PlayService : Service() {
 
             val song = playingList[playingIndex]
 
-            // Insert Play Record
+            // insert play record
             val playRecord = PlayRecord(Calendar.getInstance().timeInMillis, song.id)
             RaindropRepository.apply {
                 insertSong(scope, song)
@@ -99,9 +111,11 @@ class PlayService : Service() {
         }
     }
 
-    private var playingState: PlaybackStateCompat = PlaybackStateCompat.Builder()
-        .setState(PlaybackStateCompat.STATE_NONE, 0, 1f)
-        .build()
+    private var playingState: PlaybackStateCompat = Player.noneState
+
+    /*
+        songs list
+     */
 
     private val playingList = mutableListOf<Song>()
 
@@ -113,23 +127,21 @@ class PlayService : Service() {
             }
         }
 
-    private var playingSongLength: Long = 0
 
+    /*
+        media session
+     */
 
-    // media session
     private lateinit var session: MediaSessionCompat
 
-    // override functions
-    override fun onBind(intent: Intent?): IBinder? = object : IPlayService.Stub() {
-        override fun sessionToken(): MediaSessionCompat.Token = session.sessionToken
 
-        override fun playingSong(): SongMedium =
-            SongMedium.fromSong(
-                if (playingIndex != ShuffleMode.INDEX_NONE)
-                    playingList[ShuffleMode.INDEX_NONE]
-                else
-                    notPlaying
-            )
+    /*
+        override functions
+     */
+
+    override fun onBind(intent: Intent?): IBinder? = object : IPlayService.Stub() {
+
+        override fun sessionToken(): MediaSessionCompat.Token = session.sessionToken
 
         override fun addSong(songMedium: SongMedium) {
             playingList.add(SongMedium.toSong(songMedium))
@@ -165,11 +177,11 @@ class PlayService : Service() {
         // register context
         ContextManager.registerContext(this)
 
+        // initialize Picasso
         Picasso.setSingletonInstance(Picasso.Builder(ContextManager.context).build())
 
         // initialize media session
         session = MediaSessionCompat(this, MEDIA_SESSION_TAG)
-
         session.apply {
             setCallback(sessionCallback)
             setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
@@ -181,31 +193,32 @@ class PlayService : Service() {
             })
         }
 
-        // initialize broadcast
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_PREVIOUS))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_PLAY))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_PAUSE))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_SKIP_TO_NEXT))
-        registerReceiver(notificationReceiver, IntentFilter(ACTION_LIKE))
-
         // initialize notification
-        NotifyManager.registerNotificationChannel(channelId)
+        registerReceiver(notificationActionReceiver, IntentFilter(ACTION_SKIP_TO_PREVIOUS))
+        registerReceiver(notificationActionReceiver, IntentFilter(ACTION_PLAY))
+        registerReceiver(notificationActionReceiver, IntentFilter(ACTION_PAUSE))
+        registerReceiver(notificationActionReceiver, IntentFilter(ACTION_SKIP_TO_NEXT))
+        registerReceiver(notificationActionReceiver, IntentFilter(ACTION_LIKE))
 
+        NotifyManager.registerNotificationChannel(notificationChannelId)
+
+        // show foreground notification
         updateMetadata(null)
         stopForeground(false)
     }
 
     override fun onDestroy() {
 
+        // release player
         musicPlayer.release()
 
         // clean coroutines
         job.cancel()
 
         // unregister broadcast receiver
-        unregisterReceiver(notificationReceiver)
+        unregisterReceiver(notificationActionReceiver)
 
-        // RELEASE context
+        // release context
         ContextManager.releaseContext()
 
         super.onDestroy()
@@ -213,27 +226,28 @@ class PlayService : Service() {
 
 
     /*
-        action
+        session
      */
+
     private val shuffle = ShuffleModeManager(ListLoopShuffleMode).apply {
         add(SingleLoopShuffleMode)
         add(RandomShuffleMode)
     }
 
     private val sessionCallback = object : MediaSessionCompat.Callback() {
+
         override fun onPlay() {
             if (musicPlayer.playable) {
                 play()
             } else if (playingList.isNotEmpty()) {
-                if (playingIndex == ShuffleMode.INDEX_NONE)
-                    playingIndex = 0
+                // play first song in playing list if player not prepare to play
+                if (playingIndex == ShuffleMode.INDEX_NONE) playingIndex = 0
+
                 prepare()
             }
         }
 
-        override fun onPause() {
-            pause()
-        }
+        override fun onPause() = pause()
 
         override fun onSkipToPrevious() {
             if (playingList.isNotEmpty()) {
@@ -256,9 +270,9 @@ class PlayService : Service() {
             }
         }
 
-        override fun onSeekTo(pos: Long) {
-            seekTo(pos)
-        }
+        override fun onSeekTo(pos: Long) = seekTo(pos)
+
+        private fun onSeekToProgress(progress: Float) = seekToProgress(progress)
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
@@ -266,29 +280,25 @@ class PlayService : Service() {
             playingShuffleModeChanged()
         }
 
+        private fun onLike() = like()
+
+        private fun onCleanList() = resetPlayingList(listOf(), ShuffleMode.INDEX_NONE)
+
         override fun onCustomAction(action: String?, extras: Bundle?) {
             when (action) {
-                ACTION_LIKE -> {
-                    // todo not implement
-                    updateNotification()
-                }
-                ACTION_CLEAN_LIST -> {
-                    resetPlayingList(listOf(), ShuffleMode.INDEX_NONE)
-                }
-                ACTION_SEEK_TO_PROGRESS -> {
+                ACTION_LIKE -> onLike()
+                ACTION_CLEAN_LIST -> onCleanList()
+                ACTION_SEEK_TO_PROGRESS ->
                     extras?.apply {
-                        val progress = getFloat("progress", -1f)
-                        if (progress != -1f)
-                            musicPlayer.seekToProgress(progress)
+                        val progress = getFloat("progress", -1F)
+                        if (progress in 0F..1F) onSeekToProgress(progress)
                     }
-                }
             }
         }
     }
 
     private fun prepare() {
         if (playingIndex != ShuffleMode.INDEX_NONE) {
-            playingSongLength = 0
             RaindropRepository.loadUrl(
                 scope, playingList[playingIndex],
                 forceOnline = false,
@@ -319,6 +329,16 @@ class PlayService : Service() {
         updateNotification()
     }
 
+    private fun seekToProgress(progress: Float) {
+        musicPlayer.seekToProgress(progress)
+        updateNotification()
+    }
+
+    private fun like() {
+        // todo not implement
+        updateNotification()
+    }
+
     private fun resetPlayingList(list: List<Song>, index: Int) {
         musicPlayer.reset()
         playingList.clear()
@@ -339,9 +359,10 @@ class PlayService : Service() {
     /*
         resource change
      */
+
     private fun sendPlayingInfoAfterListenerAdd(listener: IPlayListener) {
         val song =
-            if (playingIndex == ShuffleMode.INDEX_NONE) notPlaying else playingList[playingIndex]
+            if (playingIndex == ShuffleMode.INDEX_NONE) Song.none else playingList[playingIndex]
         val songMediums = SongMedium.fromSongs(playingList)
         listener.apply {
             onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
@@ -353,7 +374,7 @@ class PlayService : Service() {
 
     private fun playingSongChanged() {
         val song =
-            if (playingIndex == ShuffleMode.INDEX_NONE) notPlaying else playingList[playingIndex]
+            if (playingIndex == ShuffleMode.INDEX_NONE) Song.none else playingList[playingIndex]
         for (pair in listeners)
             pair.value.onPlayingSongChanged(SongMedium.fromSong(song), playingIndex)
     }
@@ -380,8 +401,9 @@ class PlayService : Service() {
     }
 
     /*
-        Event
+        event
      */
+
     private fun sendEvent(event: String) {
         for (pair in listeners)
             pair.value.eventListener(event)
@@ -390,14 +412,15 @@ class PlayService : Service() {
     /*
         notification
      */
-    private val channelId by lazy {
+
+    private val notificationChannelId by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             "moe.aoramd.raindrop:notification"
         else
             ""
     }
 
-    private val notificationReceiver = object : BroadcastReceiver() {
+    private val notificationActionReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.apply {
                 when (action) {
@@ -420,7 +443,7 @@ class PlayService : Service() {
 
     private fun updateNotification() {
         val notification = NotifyManager.mediaStyleNotification(
-            this, channelId, session,
+            this, notificationChannelId, session,
             musicPlayer.playing,
             false
         )
@@ -428,8 +451,9 @@ class PlayService : Service() {
     }
 
     /*
-        Metadata
+        metadata
      */
+
     private fun updateMetadataAsync(url: String) {
         updateMetadata(null)
         Picasso.get()
@@ -442,7 +466,6 @@ class PlayService : Service() {
                 override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                     updateMetadata(bitmap)
                 }
-
             })
     }
 
@@ -468,5 +491,8 @@ class PlayService : Service() {
             }
         }
         session.setMetadata(builder.build())
+
+        // update notification after metadata set
+        updateNotification()
     }
 }

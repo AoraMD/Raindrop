@@ -14,6 +14,12 @@ import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.base.bar.BarControlActivity
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
+/**
+ *  recent interface activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class RecentActivity : BarControlActivity() {
 
     companion object {
@@ -24,7 +30,6 @@ class RecentActivity : BarControlActivity() {
     private lateinit var binding: ActivityRecentBinding
 
     private val viewModel: RecentViewModel by viewModels()
-
     override val barController: BarControlViewModel by lazy { viewModel }
 
     private val adapter = RecentAdapter(this)
@@ -35,24 +40,30 @@ class RecentActivity : BarControlActivity() {
 
         // initialize data binding
         binding.apply {
+
+            // initialize toolbar
+            setSupportActionBar(toolbar)
+
+            // play record list
             adapter = this@RecentActivity.adapter
             layoutManager =
                 LinearLayoutManager(this@RecentActivity, LinearLayoutManager.VERTICAL, false)
         }
 
-        // initialize toolbar
-        setSupportActionBar(binding.toolbar)
-
-        // list data
+        // paged list data
         viewModel.songs.observe(this, Observer { adapter.submitList(it) })
+
+        // attach music bar
+        attachMusicBar()
     }
 
     // item click listeners
-    internal val rootClickListener: (song: Song) -> Unit = { song ->
 
+    internal val rootClickListener: (song: Song) -> Unit = { song ->
+        // todo not implement
     }
 
     internal val operationClickListener: (view: View, song: Song) -> Unit = { _, song ->
-
+        // todo not implement
     }
 }

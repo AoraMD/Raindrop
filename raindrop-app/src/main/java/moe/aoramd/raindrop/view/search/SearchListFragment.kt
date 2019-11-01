@@ -12,11 +12,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import moe.aoramd.raindrop.R
-import moe.aoramd.raindrop.view.search.binding.BindingSearchAdapter
 import moe.aoramd.raindrop.databinding.FragmentSearchListBinding
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.play.PlayActivity
 
+/**
+ *  search interface fragment
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class SearchListFragment(keywords: String) : Fragment() {
 
     private lateinit var binding: FragmentSearchListBinding
@@ -29,7 +34,8 @@ class SearchListFragment(keywords: String) : Fragment() {
 
     private val adapter = SearchListAdapter(this)
 
-    // Override Functions
+    // override functions
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,18 +47,23 @@ class SearchListFragment(keywords: String) : Fragment() {
             false
         )
 
-        // Search List
-        binding.adapter = adapter
-        binding.layoutManager =
-            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        // initialize data binding
+        binding.apply {
 
-        // Data Observer
+            // search list
+            adapter = this@SearchListFragment.adapter
+            layoutManager =
+                LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        }
+
+        // paged list data
         viewModel.songs.observe(this, Observer { adapter.submitList(it) })
 
         return binding.root
     }
 
-    // Click Listener
+    // item click listeners
+
     internal val rootClickListener: (song: Song) -> Unit = { song ->
         // todo not implement
     }

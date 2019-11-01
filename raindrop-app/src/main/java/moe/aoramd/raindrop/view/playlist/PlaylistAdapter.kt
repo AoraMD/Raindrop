@@ -1,7 +1,6 @@
 package moe.aoramd.raindrop.view.playlist
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +8,14 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.LayoutSongItemBinding
 import moe.aoramd.raindrop.repository.entity.Song
 
+/**
+ *  playlist interface list adapter
+ *
+ *  @property activity playlist activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlaylistAdapter(val activity: PlaylistActivity) :
     RecyclerView.Adapter<PlaylistAdapter.Companion.SongViewHolder>() {
 

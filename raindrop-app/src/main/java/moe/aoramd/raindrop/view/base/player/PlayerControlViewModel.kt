@@ -11,8 +11,15 @@ import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.SongMedium
 
+/**
+ *  media play service controllable view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 abstract class PlayerControlViewModel : ViewModel() {
 
+    // whether add play listener
     protected abstract val listenPlayingDataChanged: Boolean
 
     internal var service: IPlayService? = null
@@ -59,10 +66,6 @@ abstract class PlayerControlViewModel : ViewModel() {
         }
     }
 
-    internal fun removePlayingListenerIfNeed() {
-        service?.removePlayingListener(this.toString())
-    }
-
     internal fun addPlayingListenerIfNeed() {
         if (listenPlayingDataChanged) {
             try {
@@ -71,6 +74,10 @@ abstract class PlayerControlViewModel : ViewModel() {
                 e.printStackTrace()
             }
         }
+    }
+
+    internal fun removePlayingListenerIfNeed() {
+        service?.removePlayingListener(this.toString())
     }
 
     protected open fun playingSongChanged(song: Song, index: Int) {}

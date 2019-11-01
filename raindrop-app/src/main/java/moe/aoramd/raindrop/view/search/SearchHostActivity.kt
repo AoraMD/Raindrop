@@ -13,44 +13,20 @@ import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.raindrop.view.base.bar.BarControlActivity
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
+/**
+ *  search interface host activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class SearchHostActivity : BarControlActivity() {
 
     private lateinit var binding: ActivitySearchHostBinding
 
     private val viewModel: SearchHostViewModel by viewModels()
-
     override val barController: BarControlViewModel by lazy { viewModel }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Initialize Data Binding
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_search_host)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-
-        binding.search.apply {
-            setOnQueryTextListener(queryListener)
-            onActionViewExpanded()
-        }
-
-        // Event Listener
-        viewModel.event.observe(this, Observer {
-            when (it) {
-                // Source Events
-                MusicSource.EVENT_NETWORK_ERROR -> onNetworkErrorEvent()
-                MusicSource.EVENT_REQUEST_ERROR -> onRequestErrorEvent()
-                // Repository Events
-                RaindropRepository.MSG_FILE_EXIST_ERROR -> onFileExistErrorEvent()
-                RaindropRepository.MSG_FILE_DOWNLOADING_ERROR -> onDownloadingErrorEvent()
-                RaindropRepository.MSG_DOWNLOAD_SUCCESSFULLY -> onDownloadSuccessfullyEvent()
-            }
-        })
-
-        // Attach Music Bar
-        attachMusicBar()
-    }
-
+    // search view query listener
     private val queryListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
             viewModel.submit()
@@ -62,13 +38,54 @@ class SearchHostActivity : BarControlActivity() {
         override fun onQueryTextChange(newText: String?): Boolean = false
     }
 
+    // override functions
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_search_host)
+
+        // initialize data binding
+        binding.apply {
+            lifecycleOwner = this@SearchHostActivity
+            viewModel = this@SearchHostActivity.viewModel
+        }
+
+        // initialize search view
+        binding.search.apply {
+            setOnQueryTextListener(queryListener)
+            onActionViewExpanded()
+        }
+
+        // event listener
+        viewModel.event.observe(this, Observer {
+            when (it) {
+
+                // source events
+                MusicSource.EVENT_NETWORK_ERROR -> onNetworkErrorEvent()
+                MusicSource.EVENT_REQUEST_ERROR -> onRequestErrorEvent()
+
+                // repository events
+                RaindropRepository.MSG_FILE_EXIST_ERROR -> onFileExistErrorEvent()
+                RaindropRepository.MSG_FILE_DOWNLOADING_ERROR -> onDownloadingErrorEvent()
+                RaindropRepository.MSG_DOWNLOAD_SUCCESSFULLY -> onDownloadSuccessfullyEvent()
+            }
+        })
+
+        // attach music bar
+        attachMusicBar()
+    }
+
+    // private functions
+
     private fun refreshSearchList(keywords: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.search_content, SearchListFragment(keywords))
             .commit()
     }
 
-    // Event Operations
+    // event operations
+
     private fun onNetworkErrorEvent() {
         Snackbar.make(binding.root, R.string.snackbar_network_error, Snackbar.LENGTH_SHORT)
             .show()

@@ -4,6 +4,12 @@ import android.media.MediaPlayer
 import android.support.v4.media.session.PlaybackStateCompat
 import kotlin.math.roundToLong
 
+/**
+ *  a Player class implementation with MediaPlayer
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class MusicPlayer : Player() {
 
     private val player = MediaPlayer().apply {

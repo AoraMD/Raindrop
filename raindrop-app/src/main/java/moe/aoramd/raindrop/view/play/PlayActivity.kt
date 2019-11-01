@@ -10,12 +10,17 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import moe.aoramd.raindrop.R
-import moe.aoramd.raindrop.view.base.binding.BindingBaseAdapter
 import moe.aoramd.raindrop.databinding.ActivityPlayBinding
 import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.view.base.player.PlayerControlActivity
 import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 
+/**
+ *  music play interface activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlayActivity : PlayerControlActivity() {
 
     companion object {
@@ -30,41 +35,51 @@ class PlayActivity : PlayerControlActivity() {
     private val viewModel: PlayViewModel by viewModels()
     override val playerController: PlayerControlViewModel by lazy { viewModel }
 
+    private val adapter = PlayPlayingAdapter(this)
 
-    // Override Functions
+    // override functions
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Data Binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_play)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
 
-        // Playing List
-        binding.adapter = PlayPlayingAdapter(this)
-        binding.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        // initialize data binding
+        binding.apply {
 
-        // Event Listener
+            // lifecycle
+            lifecycleOwner = this@PlayActivity
+            viewModel = this@PlayActivity.viewModel
+
+            // playing list
+            adapter = this@PlayActivity.adapter
+            layoutManager =
+                LinearLayoutManager(this@PlayActivity, LinearLayoutManager.VERTICAL, false)
+        }
+
+        // event listener
         viewModel.event.observe(this, Observer {
             when (it) {
+
+                // service events
                 PlayService.EVENT_LOAD_SONG_FAILED -> onLoadSongFailedEvent()
             }
         })
     }
 
-    // Click Listener
+    // event operations
+
+    private fun onLoadSongFailedEvent() {
+        Snackbar.make(binding.root, R.string.snackbar_load_song_failed, Snackbar.LENGTH_SHORT)
+            .show()
+    }
+
+    // item click listeners
     internal val rootClickListener: (index: Int) -> Unit = { index ->
         viewModel.selectSong(index)
     }
 
     internal val operationClickListener: (view: View, index: Int) -> Unit = { view, index ->
         // todo not implement
-    }
-
-    // Event Operations
-    private fun onLoadSongFailedEvent() {
-        Snackbar.make(binding.root, R.string.snackbar_load_song_failed, Snackbar.LENGTH_SHORT)
-            .show()
     }
 }

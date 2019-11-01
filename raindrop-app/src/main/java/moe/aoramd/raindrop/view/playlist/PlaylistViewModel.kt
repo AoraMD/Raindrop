@@ -8,21 +8,37 @@ import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.SongMedium
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
+/**
+ *  playlist interface view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
 
-    // live data
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> = _loading
-
+    // event
     private val _event = EventLiveData<String>()
     val event: LiveData<String> = _event
 
+    // view model factory
+    @Suppress("UNCHECKED_CAST")
+    class Factory(private val playlist: Playlist) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T =
+            PlaylistViewModel(playlist) as T
+    }
+
+    // view : is list loading
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> = _loading
+
+    // data : songs
     private val _songs = MutableLiveData<List<Song>>()
     val songs: LiveData<List<Song>> = _songs
 
     init {
         _loading.value = true
         _songs.value = listOf()
+
         load()
     }
 
@@ -36,12 +52,6 @@ class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
                 _loading.value = false
             },
             { errorMsg -> _event.value = errorMsg })
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    class Factory(private val playlist: Playlist) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-            PlaylistViewModel(playlist) as T
     }
 
     internal fun playPlaylist(index: Long) {

@@ -20,7 +20,7 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:refreshing="@={viewModel.updating}"
+        app:refreshing="@={viewModel.refreshing}"
         app:refreshingEvent="@{() -> viewModel.refresh(false)}">
 
         <androidx.recyclerview.widget.RecyclerView

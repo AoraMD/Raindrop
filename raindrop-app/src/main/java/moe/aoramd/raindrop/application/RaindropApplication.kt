@@ -12,9 +12,19 @@ import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.lookinglass.manager.ContextManager
 
+/**
+ *  raindrop application
+ *
+ *  initialize tools and basic data here
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class RaindropApplication : Application() {
 
     init {
+
+        // set raindrop source as Netease Music Source
         RaindropRepository.source = NeteaseMusicSource()
     }
 
@@ -30,13 +40,15 @@ class RaindropApplication : Application() {
         // load account
         val job = Job()
         val scope = CoroutineScope(Dispatchers.Main + job)
-        RaindropRepository.localAccount(scope) { AccountManager.accountLiveData.value = it }
+        RaindropRepository.localAccount(scope) { AccountManager.account = it }
 
+        // start music play service
         startService(Intent(this, PlayService::class.java))
     }
 
     override fun onTerminate() {
-        // RELEASE context
+
+        // release context
         ContextManager.releaseContext()
 
         super.onTerminate()

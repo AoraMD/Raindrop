@@ -9,13 +9,21 @@ import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.SongMedium
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
+/**
+ *  search interface host view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class SearchHostViewModel : BarControlViewModel() {
 
-    private val _submitted = MutableLiveData<Boolean>().apply { value = false }
-    val submitted: LiveData<Boolean> = _submitted
-
+    // event
     private val _event = EventLiveData<String>()
     val event: LiveData<String> = _event
+
+    // view : is search keywords submitted
+    private val _submitted = MutableLiveData<Boolean>().apply { value = false }
+    val submitted: LiveData<Boolean> = _submitted
 
     internal fun submit() {
         _submitted.value = true

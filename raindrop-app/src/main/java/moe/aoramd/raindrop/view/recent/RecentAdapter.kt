@@ -1,7 +1,6 @@
 package moe.aoramd.raindrop.view.recent
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.paging.PagedListAdapter
@@ -11,6 +10,14 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.LayoutSongItemBinding
 import moe.aoramd.raindrop.repository.entity.Song
 
+/**
+ *  recent interface list adapter
+ *
+ *  @property activity playlist activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class RecentAdapter(private val activity: RecentActivity) :
     PagedListAdapter<Song, RecentAdapter.Companion.RecentViewHolder>(
         diffCallback

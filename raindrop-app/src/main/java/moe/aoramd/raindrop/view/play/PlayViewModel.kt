@@ -17,7 +17,19 @@ import moe.aoramd.raindrop.service.mode.SingleLoopShuffleMode
 import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 import kotlin.math.roundToInt
 
+/**
+ *  music play interface view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlayViewModel : PlayerControlViewModel() {
+
+    // event
+    private val _event = EventLiveData<String>()
+    val event: LiveData<String> = _event
+
+    // listen playing data change
 
     override val listenPlayingDataChanged: Boolean = true
 
@@ -36,7 +48,7 @@ class PlayViewModel : PlayerControlViewModel() {
 
     override fun playingProgressChanged(progress: Float) {
         super.playingProgressChanged(progress)
-        if (!isSeeking)
+        if (!seeking)
             _progress.value = progress.roundToInt()
     }
 
@@ -53,52 +65,57 @@ class PlayViewModel : PlayerControlViewModel() {
         }
     }
 
-    override fun eventListener(event: String) {
-        _event.value = event
-    }
-
     override fun playingShuffleModeChanged(mode: Int) {
         super.playingShuffleModeChanged(mode)
         shuffleMode.value = mode
     }
 
-    // variable
-    private var isSeeking = false
+    override fun eventListener(event: String) {
+        _event.value = event
+    }
 
-    // live data
-    private val _event = EventLiveData<String>()
-    val event: LiveData<String> = _event
+    // is music progress bar seeking
+    private var seeking = false
 
+    // view : show progress bar
     val showProgressBar = MutableLiveData<Boolean>()
 
+    // view : show playing list
     val showPlayingList = MutableLiveData<Boolean>()
 
+    // data : playing song
     private val playingSong = MutableLiveData<Song>()
 
+    // view : playing song info
     val name: LiveData<String> = Transformations.map(playingSong) { it.name }
-
     val authors: LiveData<String> = Transformations.map(playingSong) { it.authorsName }
-
     val imageUrl: LiveData<String> = Transformations.map(playingSong) { it.album.coverUrl }
 
+    // data : playing list
     private val _playingList = MutableLiveData<List<Song>>()
     val playingList: LiveData<List<Song>> = _playingList
 
+    // data : playing index
     private val _playingIndex = MutableLiveData<Int>()
     val playingIndex: LiveData<Int> = _playingIndex
 
+    // view : playing
     private val _playing = MutableLiveData<Boolean>()
     val playing: LiveData<Boolean> = _playing
 
+    // view : interface palette main color
     private val _uiColor = MutableLiveData<Int>()
     val uiColor: LiveData<Int> = _uiColor
 
+    // view : interface palette light color
     private val _uiColorLight = MutableLiveData<Int>()
     val uiColorLight: LiveData<Int> = _uiColorLight
 
+    // data : playing progress
     private val _progress = MutableLiveData<Int>()
     val progress: LiveData<Int> = _progress
 
+    // data : shuffle mode
     private val shuffleMode = MutableLiveData<Int>()
     val shuffleModeIcon: LiveData<Int> = Transformations.map(shuffleMode) {
         when (it) {
@@ -111,17 +128,18 @@ class PlayViewModel : PlayerControlViewModel() {
     init {
         showProgressBar.value = false
         showPlayingList.value = false
-        _playingList.value = listOf()
-        _playingIndex.value = -1
-        _playing.value = false
         playingSong.value = Song.unknown
+        _playingIndex.value = -1
+        _playingList.value = listOf()
+        _playing.value = false
+        _progress.value = 0
         _uiColor.value = 0xff424242.toInt()
         _uiColorLight.value = 0xff6d6d6d.toInt()
-        _progress.value = 0
         shuffleMode.value = ListLoopShuffleMode.tag
     }
 
-    fun loadCoverCallback(bitmap: Bitmap?) {
+    // generate palette
+    fun generatePalette(bitmap: Bitmap?) {
         bitmap?.let {
             Palette.from(it).generate { palette ->
                 _uiColor.value = palette?.vibrantSwatch?.rgb ?: 0xff424242.toInt()
@@ -131,7 +149,7 @@ class PlayViewModel : PlayerControlViewModel() {
     }
 
     fun progressStartChange() {
-        isSeeking = true
+        seeking = true
     }
 
     fun changedProgress(progress: Int) {
@@ -141,10 +159,11 @@ class PlayViewModel : PlayerControlViewModel() {
                 putFloat("progress", progress.toFloat() / 100)
             }
         )
-        isSeeking = false
+        seeking = false
     }
 
-    // Click Listeners
+    // panel click listeners
+
     fun changeShuffleMode() {
         controller?.transportControls?.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
     }

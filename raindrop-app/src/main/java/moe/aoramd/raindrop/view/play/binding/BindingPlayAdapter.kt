@@ -10,11 +10,24 @@ import moe.aoramd.raindrop.view.play.PlayPlayingAdapter
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.widget.MusicProgressBar
 
+/**
+ *  music play interface data binding adapter
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object BindingPlayAdapter {
+
+    /*
+        sliding up panel layout
+     */
 
     @JvmStatic
     @BindingAdapter("showPanel")
-    fun setPanelState(slidingUpPanelLayout: SlidingUpPanelLayout, enable: Boolean) {
+    fun setPanelState(
+        slidingUpPanelLayout: SlidingUpPanelLayout,
+        enable: Boolean
+    ) {
         if (slidingUpPanelLayout.panelState == SlidingUpPanelLayout.PanelState.COLLAPSED
             || slidingUpPanelLayout.panelState == SlidingUpPanelLayout.PanelState.EXPANDED
         ) {
@@ -54,9 +67,16 @@ object BindingPlayAdapter {
         }
     }
 
+    /*
+        music progress bar
+     */
+
     @JvmStatic
     @BindingAdapter("progress")
-    fun setProgress(progressBar: MusicProgressBar, progress: Int) {
+    fun setProgress(
+        progressBar: MusicProgressBar,
+        progress: Int
+    ) {
         progressBar.playProgress = progress
     }
 
@@ -78,6 +98,10 @@ object BindingPlayAdapter {
         progressBar.progressChangedListener = listener
     }
 
+    /*
+        data list recycler view
+     */
+
     @JvmStatic
     @BindingAdapter("playAdapter")
     fun setPlayPlayingAdapter(
@@ -89,7 +113,10 @@ object BindingPlayAdapter {
 
     @JvmStatic
     @BindingAdapter("playingSongs")
-    fun setPlayingSongs(recyclerView: RecyclerView, songs: List<Song>) {
+    fun setPlayingSongs(
+        recyclerView: RecyclerView,
+        songs: List<Song>
+    ) {
         val adapter = recyclerView.adapter as PlayPlayingAdapter
         adapter.data = songs
         adapter.notifyDataSetChanged()
@@ -97,13 +124,16 @@ object BindingPlayAdapter {
 
     @JvmStatic
     @BindingAdapter("playingIndex")
-    fun setPlayingIndex(recyclerView: RecyclerView, index: Int) {
+    fun setPlayingIndex(
+        recyclerView: RecyclerView,
+        index: Int
+    ) {
         val adapter = recyclerView.adapter as PlayPlayingAdapter
-        if (adapter.curIndex != index) {
-            val oldIndex = adapter.curIndex
-            adapter.curIndex = index
+        if (adapter.currentIndex != index) {
+            val oldIndex = adapter.currentIndex
+            adapter.currentIndex = index
             if (oldIndex != -1) adapter.notifyItemChanged(oldIndex)
-            if (adapter.curIndex != -1) adapter.notifyItemChanged(adapter.curIndex)
+            if (adapter.currentIndex != -1) adapter.notifyItemChanged(adapter.currentIndex)
         }
     }
 }

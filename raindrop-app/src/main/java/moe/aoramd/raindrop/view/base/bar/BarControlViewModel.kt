@@ -7,6 +7,12 @@ import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 import kotlin.math.roundToInt
 
+/**
+ *  music bar controllable view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 abstract class BarControlViewModel : PlayerControlViewModel() {
 
     override val listenPlayingDataChanged: Boolean = true
@@ -34,6 +40,7 @@ abstract class BarControlViewModel : PlayerControlViewModel() {
     override fun playingStateChanged(state: Int) {
         super.playingStateChanged(state)
         when (state) {
+            // is player playing
             PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING -> {
                 barPlayingMutable.value = true
             }

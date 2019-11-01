@@ -10,6 +10,14 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.DialogLoginBinding
 import java.lang.IllegalStateException
 
+/**
+ *  login dialog
+ *
+ *  @property loginListener listens login button click event
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class LoginDialog(private val loginListener: (phone: Long, password: String) -> Unit) :
     DialogFragment() {
 
@@ -17,6 +25,7 @@ class LoginDialog(private val loginListener: (phone: Long, password: String) -> 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
+
             binding = DataBindingUtil.inflate(
                 LayoutInflater.from(context),
                 R.layout.dialog_login,
@@ -35,8 +44,8 @@ class LoginDialog(private val loginListener: (phone: Long, password: String) -> 
                 }
                 .setNegativeButton(R.string.login_cancel, null)
 
-            val dialog = builder.create()
-            dialog
+            builder.create()
+
         } ?: throw IllegalStateException("activity null")
     }
 }

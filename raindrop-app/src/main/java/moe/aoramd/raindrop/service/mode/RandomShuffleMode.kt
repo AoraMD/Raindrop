@@ -2,6 +2,12 @@ package moe.aoramd.raindrop.service.mode
 
 import kotlin.random.Random
 
+/**
+ *  switching playing song randomly in this mode
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object RandomShuffleMode : ShuffleMode {
 
     override val tag: Int = 0xb1ee80a

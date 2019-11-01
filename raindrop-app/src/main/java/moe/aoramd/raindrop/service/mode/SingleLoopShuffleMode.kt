@@ -1,5 +1,11 @@
 package moe.aoramd.raindrop.service.mode
 
+/**
+ *  looping current song in this mode
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object SingleLoopShuffleMode : ShuffleMode {
 
     override val tag: Int = 0x33aaae0

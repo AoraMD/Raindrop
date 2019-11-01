@@ -6,6 +6,17 @@ import kotlinx.coroutines.CoroutineScope
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.entity.Song
 
+/**
+ *  search interface paging data source
+ *
+ *  @property scope load coroutines scope
+ *  @property keywords search keywords
+ *  @property pageSize page size
+ *  @property eventListener load event listener
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class SearchDataSource(
     private val scope: CoroutineScope,
     private val keywords: String,
@@ -19,23 +30,21 @@ class SearchDataSource(
     }
 
     class Factory(
-        scope: CoroutineScope,
-        keywords: String,
-        pageSize: Int,
-        eventListener: (event: String) -> Unit
+        private val scope: CoroutineScope,
+        private val keywords: String,
+        private val pageSize: Int,
+        private val eventListener: (event: String) -> Unit
     ) : DataSource.Factory<Int, Song>() {
-        private val source = SearchDataSource(
+        override fun create(): DataSource<Int, Song> = SearchDataSource(
             scope,
             keywords,
             pageSize,
             eventListener
         )
-
-        override fun create(): DataSource<Int, Song> = source
     }
 
-    private var dataSize: Int =
-        DATA_SIZE_NOT_INITIALIZE
+    // total data number
+    private var dataSize = DATA_SIZE_NOT_INITIALIZE
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,

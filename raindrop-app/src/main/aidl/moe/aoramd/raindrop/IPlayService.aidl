@@ -9,8 +9,6 @@ interface IPlayService {
 
     MediaSessionCompat.Token sessionToken();
 
-    SongMedium playingSong();
-
     void addSong(in SongMedium songMedium);
 
     void addSongAsNext(in SongMedium songMedium);

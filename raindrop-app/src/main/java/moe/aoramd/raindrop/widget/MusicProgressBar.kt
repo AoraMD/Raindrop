@@ -11,6 +11,19 @@ import androidx.core.content.ContextCompat
 import moe.aoramd.raindrop.R
 import kotlin.math.roundToInt
 
+/**
+ *  music progress bar
+ *
+ *  @constructor
+ *  create new instance
+ *
+ *  @param context context
+ *  @param attrs attributes
+ *  @param defStyleAttr default style attributes
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class MusicProgressBar(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) :
     View(context, attrs, defStyleAttr) {
 

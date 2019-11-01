@@ -11,8 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.service.PlayService
 
+/**
+ *  media play service controllable activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 abstract class PlayerControlActivity : AppCompatActivity() {
 
+    // media play service controllable view model
     abstract val playerController: PlayerControlViewModel
 
     private val serviceConnection = object : ServiceConnection {
@@ -36,6 +43,8 @@ abstract class PlayerControlActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        // bind play service
         bindService(
             Intent(this, PlayService::class.java),
             serviceConnection,
@@ -45,7 +54,8 @@ abstract class PlayerControlActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        playerController.controller = null
+
+        // unbind play service
         unbindService(serviceConnection)
     }
 }

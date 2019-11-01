@@ -17,8 +17,19 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.view.play.PlayActivity
 
+/**
+ *  manages raindrop notifications and notification channels
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object NotifyManager {
 
+    /**
+     * register notification channel
+     *
+     * @param channelId channel id
+     */
     fun registerNotificationChannel(channelId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager =
@@ -33,6 +44,16 @@ object NotifyManager {
         }
     }
 
+    /**
+     * generate media-style notification instance
+     *
+     * @param context context
+     * @param channelId channel id
+     * @param session media session
+     * @param playing true if media is playing
+     * @param like true if media is liked
+     * @return notification instance
+     */
     fun mediaStyleNotification(
         context: Context,
         channelId: String,
@@ -48,6 +69,7 @@ object NotifyManager {
             setLargeIcon(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
+            // open play interface when notification is clicked
             setContentIntent(
                 PendingIntent.getActivity(
                     context,
@@ -57,6 +79,7 @@ object NotifyManager {
                 )
             )
 
+            // skip to previous action
             addAction(
                 createNotificationAction(
                     context,
@@ -65,6 +88,8 @@ object NotifyManager {
                     PlayService.ACTION_SKIP_TO_PREVIOUS
                 )
             )
+
+            // play and pause action
             addAction(
                 createNotificationAction(
                     context,
@@ -73,6 +98,8 @@ object NotifyManager {
                     if (playing) PlayService.ACTION_PAUSE else PlayService.ACTION_PLAY
                 )
             )
+
+            // skip to next action
             addAction(
                 createNotificationAction(
                     context,
@@ -81,6 +108,8 @@ object NotifyManager {
                     PlayService.ACTION_SKIP_TO_NEXT
                 )
             )
+
+            // like action
             addAction(
                 createNotificationAction(
                     context,
@@ -90,6 +119,7 @@ object NotifyManager {
                 )
             )
 
+            // stop playing when notification is cleaned
             setDeleteIntent(
                 MediaButtonReceiver.buildMediaButtonPendingIntent(
                     context,
@@ -97,10 +127,13 @@ object NotifyManager {
                 )
             )
 
+            // notify as media-style
             setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(session.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2)
+                    .setShowActionsInCompactView(
+                        0, 1, 2     // show control buttons if notification is collapsed
+                    )
                     .setShowCancelButton(true)
                     .setCancelButtonIntent(
                         MediaButtonReceiver.buildMediaButtonPendingIntent(
@@ -113,6 +146,7 @@ object NotifyManager {
         return builder.build()
     }
 
+    // create notification action
     private fun createNotificationAction(
         context: Context,
         icon: Int,

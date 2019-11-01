@@ -1,7 +1,6 @@
 package moe.aoramd.raindrop.view.play
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -9,15 +8,23 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.LayoutSongItemBinding
 import moe.aoramd.raindrop.repository.entity.Song
 
+/**
+ *  music play interface playing list adapter
+ *
+ *  @property activity play activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class PlayPlayingAdapter(val activity: PlayActivity) :
     RecyclerView.Adapter<PlayPlayingAdapter.Companion.SongViewHolder>() {
-
-    var curIndex = -1
 
     companion object {
         class SongViewHolder(val binding: LayoutSongItemBinding) :
             RecyclerView.ViewHolder(binding.root)
     }
+
+    var currentIndex = -1
 
     var data = listOf<Song>()
 
@@ -35,7 +42,7 @@ class PlayPlayingAdapter(val activity: PlayActivity) :
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         holder.binding.apply {
-            elevation = if (position == curIndex) 8f else 4f
+            elevation = if (position == currentIndex) 8f else 4f
             song = data[position]
             setRootClickListener {
                 activity.rootClickListener.invoke(position)

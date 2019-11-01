@@ -6,6 +6,12 @@ import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.entity.Account
 
+/**
+ *  profile interface data binding adapter
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object BindingProfileAdapter {
 
     @JvmStatic

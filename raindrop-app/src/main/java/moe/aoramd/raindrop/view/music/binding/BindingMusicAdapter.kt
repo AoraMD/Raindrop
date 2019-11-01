@@ -5,7 +5,17 @@ import androidx.recyclerview.widget.RecyclerView
 import moe.aoramd.raindrop.view.music.MusicAdapter
 import moe.aoramd.raindrop.repository.entity.Playlist
 
+/**
+ *  music interface data binding adapter
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 object BindingMusicAdapter {
+
+    /*
+        data list recycler view
+     */
 
     @JvmStatic
     @BindingAdapter("musicAdapter")
@@ -18,7 +28,10 @@ object BindingMusicAdapter {
 
     @JvmStatic
     @BindingAdapter("playlists")
-    fun setPlaylists(recyclerView: RecyclerView, playlists: List<Playlist>) {
+    fun setPlaylists(
+        recyclerView: RecyclerView,
+        playlists: List<Playlist>
+    ) {
         val adapter = recyclerView.adapter as MusicAdapter
         adapter.playlists = playlists
         adapter.notifyDataSetChanged()

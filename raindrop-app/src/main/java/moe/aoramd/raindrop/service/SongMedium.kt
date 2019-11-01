@@ -6,6 +6,20 @@ import moe.aoramd.raindrop.repository.entity.Album
 import moe.aoramd.raindrop.repository.entity.Author
 import moe.aoramd.raindrop.repository.entity.Song
 
+/**
+ *  medium carrying song data for crossing processes
+ *
+ *  @property id song id
+ *  @property name song name
+ *  @property authorIds list of author id
+ *  @property authorNames list of author name
+ *  @property albumId album id
+ *  @property albumName album name
+ *  @property albumCoverUrl album cover url
+ *
+ *  @author M.D.
+ *  @version 1
+ */
 data class SongMedium(
     val id: Long,
     val name: String,
@@ -15,6 +29,7 @@ data class SongMedium(
     val albumName: String,
     val albumCoverUrl: String
 ) : Parcelable {
+
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readString() ?: PARCEL_ERROR_TAG,
@@ -41,7 +56,7 @@ data class SongMedium(
 
     companion object {
 
-        private const val PARCEL_ERROR_TAG = "#_parcel_error"
+        private const val PARCEL_ERROR_TAG = "#_Song_Medium_parcel_error"
 
         fun toSong(songMedium: SongMedium): Song {
             val id = songMedium.id

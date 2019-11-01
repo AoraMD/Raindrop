@@ -9,6 +9,12 @@ import moe.aoramd.raindrop.manager.AccountManager
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.entity.Account
 
+/**
+ *  profile interface view model
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class ProfileViewModel : ViewModel() {
 
     companion object {
@@ -17,24 +23,28 @@ class ProfileViewModel : ViewModel() {
         internal const val EVENT_LOGOUT = "#_Profile_logout"
     }
 
-    val updating = MutableLiveData<Boolean>()
-
+    // event
     private val _event = EventLiveData<String>()
     val event: LiveData<String> = _event
 
+    // account
     val account: LiveData<Account> = AccountManager.accountLiveData
 
+    // view : is list refreshing
+    val refreshing = MutableLiveData<Boolean>()
+
     init {
-        updating.value = false
+        refreshing.value = false
+
         refresh()
     }
 
     fun refresh() {
-        updating.value = true
+        refreshing.value = true
         RaindropRepository.updateLoginState(viewModelScope) {
             if (!it)
-                AccountManager.accountLiveData.value = Account.offline
-            updating.value = false
+                AccountManager.account = Account.offline
+            refreshing.value = false
         }
     }
 
@@ -48,15 +58,20 @@ class ProfileViewModel : ViewModel() {
     }
 
     internal fun login(phone: Long, password: String) {
-        updating.value = true
+        refreshing.value = true
+
         RaindropRepository.login(
             viewModelScope,
             phone,
             password,
-            { AccountManager.accountLiveData.value = it },
-            { errorMsg -> _event.value = errorMsg },
-            {
-                updating.value = false
+            success = { account ->
+                AccountManager.account = account
+            },
+            error = { errorMsg ->
+                _event.value = errorMsg
+            },
+            complete = {
+                refreshing.value = false
             }
         )
     }

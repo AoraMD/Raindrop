@@ -12,6 +12,14 @@ import moe.aoramd.raindrop.view.base.bar.BarControlActivity
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 import moe.aoramd.raindrop.view.search.SearchHostActivity
 
+/**
+ *  raindrop main interface
+ *
+ *  application launch activity
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class MainActivity : BarControlActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -20,24 +28,29 @@ class MainActivity : BarControlActivity() {
 
     override val barController: BarControlViewModel by lazy { viewModel }
 
-    // Override Functions
+    // override functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Data Binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
 
-        // Initialize Toolbar
-        setSupportActionBar(binding.toolbar)
+        // initialize data binding
+        binding.apply {
 
-        // Link Pager and Tabs
-        binding.pager.adapter =
-            MainPagerAdapter(supportFragmentManager)
-        binding.tabs.setupWithViewPager(binding.pager)
+            // lifecycle
+            lifecycleOwner = this@MainActivity
+            viewModel = this@MainActivity.viewModel
 
-        // Attach Music Bar
+            // initialize toolbar
+            setSupportActionBar(toolbar)
+
+            // link pager and tabs
+            pager.adapter =
+                MainPagerAdapter(supportFragmentManager)
+            tabs.setupWithViewPager(pager)
+        }
+
+        // attach music bar
         attachMusicBar()
     }
 
@@ -48,13 +61,14 @@ class MainActivity : BarControlActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.main_tool_search -> openSearchInterface()
+            R.id.main_tool_search -> toolbarOptionSearch()
         }
         return super.onOptionsItemSelected(item)
     }
 
-    // Private Functions
-    private fun openSearchInterface() {
+    // toolbar options
+
+    private fun toolbarOptionSearch() {
         startActivity(Intent(this, SearchHostActivity::class.java))
     }
 }

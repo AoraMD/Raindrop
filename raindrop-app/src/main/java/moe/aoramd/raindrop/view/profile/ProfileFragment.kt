@@ -9,14 +9,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
-
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.FragmentProfileBinding
-import moe.aoramd.raindrop.manager.AccountManager
-import moe.aoramd.raindrop.repository.entity.Account
 import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.raindrop.view.login.LoginDialog
 
+/**
+ *  profile interface fragment
+ *
+ *  @author M.D.
+ *  @version dev 1
+ */
 class ProfileFragment : Fragment() {
 
     companion object {
@@ -37,15 +40,21 @@ class ProfileFragment : Fragment() {
             container,
             false
         )
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+
+        // initialize data binding
+        binding.apply {
+            lifecycleOwner = this@ProfileFragment
+            viewModel = this@ProfileFragment.viewModel
+        }
 
         // event listener
         viewModel.event.observe(this, Observer {
             when (it) {
+
                 // source events
                 MusicSource.EVENT_NETWORK_ERROR -> onNetworkErrorEvent()
                 MusicSource.EVENT_REQUEST_ERROR -> onRequestErrorEvent()
+
                 // view events
                 ProfileViewModel.EVENT_LOGIN -> onLoginEvent()
             }
@@ -55,6 +64,7 @@ class ProfileFragment : Fragment() {
     }
 
     // event operations
+
     private fun onNetworkErrorEvent() {
         Snackbar.make(binding.root, R.string.snackbar_network_error, Snackbar.LENGTH_SHORT).show()
     }
