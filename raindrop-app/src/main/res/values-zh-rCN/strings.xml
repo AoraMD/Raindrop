@@ -35,4 +35,7 @@
     <string name="main_tool_search">搜索</string>
     <string name="search_hint">搜索音乐</string>
     <string name="add_to_playlist">添加到歌单</string>
+    <string name="not_playing">没有歌曲播放</string>
+    <string name="unknown_song">未知歌曲</string>
+    <string name="unknown_author">未知作者</string>
 </resources>

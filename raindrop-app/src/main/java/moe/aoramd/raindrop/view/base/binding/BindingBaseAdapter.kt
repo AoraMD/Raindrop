@@ -35,47 +35,27 @@ object BindingBaseAdapter {
     }
 
     @JvmStatic
-    @BindingAdapter("imageUrl")
+    @BindingAdapter("imageUrl", "imageUrlTarget", requireAll = false)
     fun loadImageFromUrl(
         imageView: ImageView,
-        url: String?
+        url: String?,
+        target: Target?
     ) {
         if (url == null || url == Tags.UNKNOWN_TAG)
             imageView.setImageResource(R.drawable.img_placeholder)
-        else
+        else {
             Picasso.get()
                 .load(url)
                 .placeholder(R.drawable.img_placeholder)
                 .into(imageView)
-    }
 
-    @JvmStatic
-    @BindingAdapter("imageUrlAsBitmap", "loadUrlCallback", requireAll = false)
-    fun loadImageFromUrlWithCallback(
-        imageView: ImageView,
-        url: String?,
-        callback: LoadImageUrlCallback?
-    ) {
-        if (url == null || url == Tags.UNKNOWN_TAG)
-            imageView.setImageResource(R.drawable.img_placeholder)
-        else
-            Picasso.get()
-                .load(url)
-                .placeholder(R.drawable.img_placeholder)
-                .into(object : Target {
-                    override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                        callback?.onComplete(bitmap)
-                        imageView.setImageBitmap(bitmap)
-                    }
-
-                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                        imageView.setImageDrawable(placeHolderDrawable)
-                    }
-
-                    override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                        imageView.setImageDrawable(errorDrawable)
-                    }
-                })
+            target?.apply {
+                Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.img_placeholder)
+                    .into(this)
+            }
+        }
     }
 
     @JvmStatic
@@ -85,7 +65,7 @@ object BindingBaseAdapter {
         url: String
     ) {
         if (url == Tags.UNKNOWN_TAG)
-            imageView.setImageResource(R.drawable.img_placeholder)
+            imageView.setImageResource(R.drawable.bg_blur_placeholder)
         else
             Picasso.get()
                 .load(url)

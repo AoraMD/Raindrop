@@ -18,6 +18,7 @@ import com.squareup.picasso.Target
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import moe.aoramd.lookinglass.log.GlassLog
 import moe.aoramd.raindrop.IPlayListener
 import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.R
@@ -356,6 +357,7 @@ class PlayService : Service() {
         }
     }
 
+
     /*
         resource change
      */
@@ -400,6 +402,7 @@ class PlayService : Service() {
             pair.value.onPlayingProgressChanged(progress)
     }
 
+
     /*
         event
      */
@@ -408,6 +411,7 @@ class PlayService : Service() {
         for (pair in listeners)
             pair.value.eventListener(event)
     }
+
 
     /*
         notification
@@ -450,23 +454,29 @@ class PlayService : Service() {
         startForeground(1, notification)
     }
 
+
     /*
         metadata
      */
+
+    private val loadTarget = object : Target {
+        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+
+        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+            GlassLog.d("Load Bitmap Failed")
+        }
+
+        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+            updateMetadata(bitmap)
+        }
+    }
 
     private fun updateMetadataAsync(url: String) {
         updateMetadata(null)
         Picasso.get()
             .load(url)
-            .into(object : Target {
-                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-
-                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
-
-                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                    updateMetadata(bitmap)
-                }
-            })
+            .placeholder(R.drawable.img_placeholder)
+            .into(loadTarget)
     }
 
     private fun updateMetadata(cover: Bitmap?) {
@@ -482,8 +492,14 @@ class PlayService : Service() {
             }
         } else {
             MediaMetadataCompat.Builder().apply {
-                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Not Playing")
-                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Not Playing")
+                putString(
+                    MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE,
+                    ContextManager.resourceString(R.string.not_playing)
+                )
+                putString(
+                    MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,
+                    ContextManager.resourceString(R.string.unknown_author)
+                )
                 putBitmap(
                     MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
                     BitmapFactory.decodeResource(resources, R.drawable.img_placeholder)
@@ -493,6 +509,6 @@ class PlayService : Service() {
         session.setMetadata(builder.build())
 
         // update notification after metadata set
-        updateNotification()
+//        updateNotification()
     }
 }

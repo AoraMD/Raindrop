@@ -34,4 +34,7 @@
     <string name="main_tool_search">Search</string>
     <string name="search_hint">Search Music</string>
     <string name="add_to_playlist">Add To Playlist</string>
+    <string name="not_playing">Not Playing</string>
+    <string name="unknown_song">Unknown Song</string>
+    <string name="unknown_author">Unknown Author</string>
 </resources>

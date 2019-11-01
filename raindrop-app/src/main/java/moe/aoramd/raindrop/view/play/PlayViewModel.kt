@@ -1,12 +1,15 @@
 package moe.aoramd.raindrop.view.play
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.palette.graphics.Palette
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import moe.aoramd.lookinglass.lifecycle.EventLiveData
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.repository.entity.Song
@@ -15,6 +18,7 @@ import moe.aoramd.raindrop.service.mode.ListLoopShuffleMode
 import moe.aoramd.raindrop.service.mode.RandomShuffleMode
 import moe.aoramd.raindrop.service.mode.SingleLoopShuffleMode
 import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
+import java.lang.Exception
 import kotlin.math.roundToInt
 
 /**
@@ -138,12 +142,18 @@ class PlayViewModel : PlayerControlViewModel() {
         shuffleMode.value = ListLoopShuffleMode.tag
     }
 
-    // generate palette
-    fun generatePalette(bitmap: Bitmap?) {
-        bitmap?.let {
-            Palette.from(it).generate { palette ->
-                _uiColor.value = palette?.vibrantSwatch?.rgb ?: 0xff424242.toInt()
-                _uiColorLight.value = palette?.lightVibrantSwatch?.rgb ?: 0xff6d6d6d.toInt()
+    // palette target
+    val paletteTarget = object : Target {
+        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+
+        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
+
+        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+            bitmap?.let {
+                Palette.from(it).generate { palette ->
+                    _uiColor.value = palette?.vibrantSwatch?.rgb ?: 0xff424242.toInt()
+                    _uiColorLight.value = palette?.lightVibrantSwatch?.rgb ?: 0xff6d6d6d.toInt()
+                }
             }
         }
     }

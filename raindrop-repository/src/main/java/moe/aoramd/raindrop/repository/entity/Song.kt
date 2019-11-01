@@ -21,7 +21,7 @@ data class Song(
                 }
                 builder.append(authors.last().name)
                 builder.toString()
-            } else "No Author"
+            } else Tags.UNKNOWN_TAG
 
     companion object {
 
