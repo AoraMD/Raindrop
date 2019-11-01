@@ -79,7 +79,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="60dp"
                     android:layout_marginBottom="60dp"
-                    android:text="@string/app_list_loading"
+                    android:text="@string/list_loading"
                     android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
 
             </FrameLayout>

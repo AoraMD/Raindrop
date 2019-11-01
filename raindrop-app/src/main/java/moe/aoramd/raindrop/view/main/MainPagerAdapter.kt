@@ -27,7 +27,7 @@ class MainPagerAdapter(manager: FragmentManager) :
     )
 
     private val fragmentTitles: List<Int> = listOf(
-        R.string.main_music, R.string.main_profile
+        R.string.music, R.string.profile
     )
 
     override fun getItem(position: Int): Fragment = fragments[position]

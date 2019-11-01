@@ -80,7 +80,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="end|center_vertical"
                 android:background="?selectableItemBackground"
-                android:contentDescription="@string/description_operation_menu"
+                android:contentDescription="@string/operation_menu"
                 android:onClick="@{operationClickListener}"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"

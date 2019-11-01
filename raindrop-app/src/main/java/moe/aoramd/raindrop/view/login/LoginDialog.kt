@@ -36,13 +36,13 @@ class LoginDialog(private val loginListener: (phone: Long, password: String) -> 
             val builder = AlertDialog.Builder(it)
                 .setView(binding.root)
                 .setPositiveButton(
-                    R.string.login_login
+                    R.string.login
                 ) { _, _ ->
                     val phone = binding.phone.text.toString().toLong()
                     val password = binding.password.text.toString()
                     loginListener.invoke(phone, password)
                 }
-                .setNegativeButton(R.string.login_cancel, null)
+                .setNegativeButton(R.string.cancel, null)
 
             builder.create()
 

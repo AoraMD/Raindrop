@@ -4,6 +4,7 @@ import android.widget.TextView
 import androidx.databinding.*
 import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.R
+import moe.aoramd.raindrop.repository.Tags
 import moe.aoramd.raindrop.repository.entity.Account
 
 /**
@@ -18,8 +19,8 @@ object BindingProfileAdapter {
     @BindingAdapter("nickname")
     fun setNickname(textView: TextView, text: String) {
         textView.text = when (text) {
-            Account.LOADING_TAG -> ContextManager.resourceString(R.string.app_loading)
-            Account.OFFLINE_TAG -> ContextManager.resourceString(R.string.profile_click_login)
+            Tags.LOADING_TAG -> ContextManager.resourceString(R.string.loading)
+            Account.OFFLINE_TAG -> ContextManager.resourceString(R.string.click_to_login)
             else -> text
         }
     }
@@ -28,8 +29,8 @@ object BindingProfileAdapter {
     @BindingAdapter("signature")
     fun setSignature(textView: TextView, text: String) {
         textView.text = when (text) {
-            Account.LOADING_TAG -> ContextManager.resourceString(R.string.app_loading)
-            Account.OFFLINE_TAG -> ContextManager.resourceString(R.string.profile_empty_status)
+            Tags.LOADING_TAG -> ContextManager.resourceString(R.string.loading)
+            Account.OFFLINE_TAG -> ContextManager.resourceString(R.string.empty_status)
             else -> text
         }
     }

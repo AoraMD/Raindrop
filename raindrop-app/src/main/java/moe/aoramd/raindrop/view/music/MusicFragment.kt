@@ -38,21 +38,21 @@ class MusicFragment : Fragment() {
             // recent play
             MusicAdapter.Companion.MusicHeader(
                 HEADER_RECENT_PLAY_ID,
-                R.string.music_recent_play,
+                R.string.recent_play,
                 R.drawable.ic_history
             ),
 
             // music radio
             MusicAdapter.Companion.MusicHeader(
                 HEADER_MUSIC_RADIO_ID,
-                R.string.music_radio,
+                R.string.private_radio,
                 R.drawable.ic_radio
             ),
 
             // download
             MusicAdapter.Companion.MusicHeader(
                 HEADER_DOWNLOAD_ID,
-                R.string.music_download,
+                R.string.download,
                 R.drawable.ic_download
             )
         )

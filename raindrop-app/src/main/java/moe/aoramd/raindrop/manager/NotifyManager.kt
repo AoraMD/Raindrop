@@ -84,7 +84,7 @@ object NotifyManager {
                 createNotificationAction(
                     context,
                     R.drawable.ic_skip_previous,
-                    R.string.description_previous_song,
+                    R.string.previous_song,
                     PlayService.ACTION_SKIP_TO_PREVIOUS
                 )
             )
@@ -94,7 +94,7 @@ object NotifyManager {
                 createNotificationAction(
                     context,
                     if (playing) R.drawable.ic_pause else R.drawable.ic_play,
-                    R.string.description_play,
+                    R.string.play,
                     if (playing) PlayService.ACTION_PAUSE else PlayService.ACTION_PLAY
                 )
             )
@@ -104,7 +104,7 @@ object NotifyManager {
                 createNotificationAction(
                     context,
                     R.drawable.ic_skip_next,
-                    R.string.description_next_song,
+                    R.string.next_song,
                     PlayService.ACTION_SKIP_TO_NEXT
                 )
             )
@@ -114,7 +114,7 @@ object NotifyManager {
                 createNotificationAction(
                     context,
                     if (like) R.drawable.ic_favorite else R.drawable.ic_favorite_border,
-                    R.string.description_like,
+                    R.string.like,
                     PlayService.ACTION_LIKE
                 )
             )

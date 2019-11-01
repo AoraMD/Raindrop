@@ -154,7 +154,7 @@ object BindingPlayAdapter {
         textView.text = when (name) {
             null, Tags.UNKNOWN_TAG -> ContextManager.resourceString(R.string.unknown_song)
             Song.NONE_TAG -> ContextManager.resourceString(R.string.not_playing)
-            Tags.LOADING_TAG -> ContextManager.resourceString(R.string.app_loading)
+            Tags.LOADING_TAG -> ContextManager.resourceString(R.string.loading)
             else -> name
         }
     }

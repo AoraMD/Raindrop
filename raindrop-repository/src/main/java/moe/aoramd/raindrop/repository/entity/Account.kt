@@ -15,11 +15,8 @@ data class Account(
     val backgroundUrl: String
 ) {
     companion object {
-        const val OFFLINE_ID = -10L
-        const val OFFLINE_TAG = "#_Account_offline"
-
-        const val LOADING_ID = -20L
-        const val LOADING_TAG = "#_Account_loading"
+        const val OFFLINE_ID: Long = -0x1ac0ff25f09d5cf5
+        const val OFFLINE_TAG: String = "&Account.offline"
 
         val offline = Account(
             OFFLINE_ID, OFFLINE_TAG,
@@ -28,9 +25,9 @@ data class Account(
         )
 
         val loading = Account(
-            LOADING_ID, LOADING_TAG,
-            LOADING_TAG,
-            LOADING_TAG, LOADING_TAG
+            Tags.LOADING_ID, Tags.LOADING_TAG,
+            Tags.LOADING_TAG,
+            Tags.LOADING_TAG, Tags.LOADING_TAG
         )
     }
 }
