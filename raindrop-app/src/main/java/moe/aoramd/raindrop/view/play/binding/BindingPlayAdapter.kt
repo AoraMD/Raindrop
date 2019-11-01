@@ -1,4 +1,4 @@
-package moe.aoramd.raindrop.adapter.binding
+package moe.aoramd.raindrop.view.play.binding
 
 import android.view.View
 import androidx.databinding.BindingAdapter
@@ -6,7 +6,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.recyclerview.widget.RecyclerView
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
-import moe.aoramd.raindrop.adapter.list.PlayPlayingAdapter
+import moe.aoramd.raindrop.view.play.PlayPlayingAdapter
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.widget.MusicProgressBar
 

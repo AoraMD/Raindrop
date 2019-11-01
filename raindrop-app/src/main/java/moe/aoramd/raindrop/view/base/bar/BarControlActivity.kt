@@ -1,4 +1,4 @@
-package moe.aoramd.raindrop.view.base.control
+package moe.aoramd.raindrop.view.base.bar
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,15 +6,15 @@ import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.WidgetMusicBarBinding
-import moe.aoramd.raindrop.view.base.bind.PlayerBindActivity
-import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import moe.aoramd.raindrop.view.base.player.PlayerControlActivity
+import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 import moe.aoramd.raindrop.view.play.PlayActivity
 
-abstract class BarControlActivity : PlayerBindActivity() {
+abstract class BarControlActivity : PlayerControlActivity() {
 
     private lateinit var barBinding: WidgetMusicBarBinding
 
-    override val binder: PlayerBindViewModel by lazy { barController }
+    override val playerController: PlayerControlViewModel by lazy { barController }
 
     protected abstract val barController: BarControlViewModel
 

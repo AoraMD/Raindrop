@@ -6,7 +6,7 @@
 
         <variable
             name="adapter"
-            type="moe.aoramd.raindrop.adapter.list.SearchListAdapter" />
+            type="moe.aoramd.raindrop.view.search.SearchListAdapter" />
 
         <variable
             name="layoutManager"

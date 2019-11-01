@@ -6,7 +6,7 @@ import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.entity.Playlist
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.service.SongMedium
-import moe.aoramd.raindrop.view.base.control.BarControlViewModel
+import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
 class PlaylistViewModel(val playlist: Playlist) : BarControlViewModel() {
 

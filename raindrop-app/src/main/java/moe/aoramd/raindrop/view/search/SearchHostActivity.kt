@@ -10,8 +10,8 @@ import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.ActivitySearchHostBinding
 import moe.aoramd.raindrop.repository.RaindropRepository
 import moe.aoramd.raindrop.repository.source.MusicSource
-import moe.aoramd.raindrop.view.base.control.BarControlActivity
-import moe.aoramd.raindrop.view.base.control.BarControlViewModel
+import moe.aoramd.raindrop.view.base.bar.BarControlActivity
+import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 
 class SearchHostActivity : BarControlActivity() {
 

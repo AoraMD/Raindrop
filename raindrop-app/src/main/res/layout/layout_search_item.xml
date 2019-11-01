@@ -7,11 +7,11 @@
 
         <variable
             name="rootClickListener"
-            type="moe.aoramd.raindrop.adapter.binding.BindingSearchAdapter.SongClickListener" />
+            type="android.view.View.OnClickListener" />
 
         <variable
             name="operationClickListener"
-            type="moe.aoramd.raindrop.adapter.binding.BindingSearchAdapter.SongClickListener" />
+            type="android.view.View.OnClickListener" />
 
         <variable
             name="song"
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:onClick="@{(view) -> rootClickListener.onClick(view, song)}">
+            android:onClick="@{rootClickListener}">
 
             <FrameLayout
                 android:layout_width="64dp"
@@ -81,7 +81,7 @@
                 android:layout_gravity="end|center_vertical"
                 android:background="?selectableItemBackground"
                 android:contentDescription="@string/description_operation_menu"
-                android:onClick="@{(view) -> operationClickListener.onClick(view, song)}"
+                android:onClick="@{operationClickListener}"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:src="@drawable/ic_more_vert"

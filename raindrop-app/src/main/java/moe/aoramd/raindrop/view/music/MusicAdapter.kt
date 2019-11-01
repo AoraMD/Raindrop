@@ -1,4 +1,4 @@
-package moe.aoramd.raindrop.adapter.list
+package moe.aoramd.raindrop.view.music
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,7 +11,7 @@ import moe.aoramd.raindrop.databinding.LayoutMusicPlaylistItemBinding
 import moe.aoramd.raindrop.repository.entity.Playlist
 import moe.aoramd.raindrop.view.playlist.PlaylistActivity
 
-class MusicAdapter(val activity: FragmentActivity) :
+class MusicAdapter(val fragment: MusicFragment) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -25,23 +25,15 @@ class MusicAdapter(val activity: FragmentActivity) :
             RecyclerView.ViewHolder(binding.root)
 
         data class MusicHeader(
+            val id: Long,
             val title: Int,
-            val icon: Int,
-            val click: () -> Unit,
-            var trackCount: Int = 0
+            val icon: Int
         )
     }
 
-    private val headers = listOf(
-        MusicHeader(
-            R.string.music_recent_play,
-            R.drawable.ic_history,
-            {}),
-        MusicHeader(R.string.music_radio, R.drawable.ic_radio, {}),
-        MusicHeader(R.string.music_download, R.drawable.ic_download, {})
-    )
+    var headers = listOf<MusicHeader>()
 
-    var data = listOf<Playlist>()
+    var playlists = listOf<Playlist>()
 
     override fun getItemViewType(position: Int): Int {
         return if (position < headers.size) VIEW_TYPE_HEADER else VIEW_TYPE_PLAYLIST
@@ -73,19 +65,25 @@ class MusicAdapter(val activity: FragmentActivity) :
         }
     }
 
-    override fun getItemCount(): Int = headers.size + data.size
+    override fun getItemCount(): Int = headers.size + playlists.size
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (position < headers.size) {
-            val headerHolder = holder as HeaderViewHolder
-            headerHolder.binding.header = headers[position]
+            val data = headers[position]
+            (holder as HeaderViewHolder).binding.apply {
+                header = data
+                setRootClickListener {
+                    fragment.headerItemClickListener.invoke(data.id)
+                }
+            }
         } else {
-            val actualPos = position - headers.size
-            val playlistHolder = holder as PlaylistViewHolder
-            playlistHolder.binding.playlist = data[actualPos]
-            playlistHolder.binding.layout.setOnClickListener {
-                PlaylistActivity.start(activity, data[actualPos])
+            val data = playlists[position - headers.size]
+            (holder as PlaylistViewHolder).binding.apply {
+                playlist = data
+                setRootClickListener {
+                    fragment.playlistItemClickListener.invoke(data)
+                }
             }
         }
     }

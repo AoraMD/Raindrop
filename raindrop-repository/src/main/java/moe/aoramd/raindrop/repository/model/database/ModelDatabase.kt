@@ -17,6 +17,7 @@ import moe.aoramd.lookinglass.manager.ContextManager
         Playlist::class,
         Album::class,
         Author::class,
+        PlayRecord::class,
         SongMeta::class,
         AccountPlaylistRelation::class,
         PlaylistSongRelation::class
@@ -46,6 +47,8 @@ abstract class ModelDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
 
     abstract fun authorDao(): AuthorDao
+
+    abstract fun playRecordDao(): PlayRecordDao
 
     abstract fun songMetaDao(): SongMetaDao
 

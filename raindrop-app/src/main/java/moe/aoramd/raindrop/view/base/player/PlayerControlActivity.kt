@@ -1,4 +1,4 @@
-package moe.aoramd.raindrop.view.base.bind
+package moe.aoramd.raindrop.view.base.player
 
 import android.content.ComponentName
 import android.content.Context
@@ -11,26 +11,26 @@ import androidx.appcompat.app.AppCompatActivity
 import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.service.PlayService
 
-abstract class PlayerBindActivity : AppCompatActivity() {
+abstract class PlayerControlActivity : AppCompatActivity() {
 
-    abstract val binder: PlayerBindViewModel
+    abstract val playerController: PlayerControlViewModel
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             try {
-                binder.removePlayingListenerIfNeed()
+                playerController.removePlayingListenerIfNeed()
             } catch (e: RemoteException) {
                 e.printStackTrace()
             }
-            binder.service = null
-            binder.controller = null
+            playerController.service = null
+            playerController.controller = null
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            binder.service = IPlayService.Stub.asInterface(service)
-            binder.addPlayingListenerIfNeed()
-            binder.controller =
-                MediaControllerCompat(this@PlayerBindActivity, binder.service!!.sessionToken())
+            playerController.service = IPlayService.Stub.asInterface(service)
+            playerController.addPlayingListenerIfNeed()
+            playerController.controller =
+                MediaControllerCompat(this@PlayerControlActivity, playerController.service!!.sessionToken())
         }
     }
 
@@ -45,7 +45,7 @@ abstract class PlayerBindActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        binder.controller = null
+        playerController.controller = null
         unbindService(serviceConnection)
     }
 }

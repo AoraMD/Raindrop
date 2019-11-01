@@ -1,6 +1,5 @@
-package moe.aoramd.raindrop.view.base.bind
+package moe.aoramd.raindrop.view.base.player
 
-import android.os.Bundle
 import android.os.RemoteException
 import android.support.v4.media.session.MediaControllerCompat
 import androidx.lifecycle.ViewModel
@@ -10,10 +9,9 @@ import kotlinx.coroutines.launch
 import moe.aoramd.raindrop.IPlayListener
 import moe.aoramd.raindrop.IPlayService
 import moe.aoramd.raindrop.repository.entity.Song
-import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.service.SongMedium
 
-abstract class PlayerBindViewModel : ViewModel() {
+abstract class PlayerControlViewModel : ViewModel() {
 
     protected abstract val listenPlayingDataChanged: Boolean
 

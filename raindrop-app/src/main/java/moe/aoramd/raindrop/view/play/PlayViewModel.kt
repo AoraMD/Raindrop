@@ -14,10 +14,10 @@ import moe.aoramd.raindrop.service.PlayService
 import moe.aoramd.raindrop.service.mode.ListLoopShuffleMode
 import moe.aoramd.raindrop.service.mode.RandomShuffleMode
 import moe.aoramd.raindrop.service.mode.SingleLoopShuffleMode
-import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 import kotlin.math.roundToInt
 
-class PlayViewModel : PlayerBindViewModel() {
+class PlayViewModel : PlayerControlViewModel() {
 
     override val listenPlayingDataChanged: Boolean = true
 

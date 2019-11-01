@@ -1,13 +1,13 @@
-package moe.aoramd.raindrop.view.base.control
+package moe.aoramd.raindrop.view.base.bar
 
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import moe.aoramd.raindrop.repository.entity.Song
-import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 import kotlin.math.roundToInt
 
-abstract class BarControlViewModel : PlayerBindViewModel() {
+abstract class BarControlViewModel : PlayerControlViewModel() {
 
     override val listenPlayingDataChanged: Boolean = true
 

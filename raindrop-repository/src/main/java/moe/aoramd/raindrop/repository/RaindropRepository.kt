@@ -1,17 +1,15 @@
 package moe.aoramd.raindrop.repository
 
 import android.os.Environment
+import androidx.paging.DataSource
 import com.jakewharton.disklrucache.DiskLruCache
 import kotlinx.coroutines.*
 import moe.aoramd.lookinglass.log.GlassLog
-import moe.aoramd.raindrop.repository.entity.Account
-import moe.aoramd.raindrop.repository.entity.Playlist
-import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.repository.model.MusicModel
 import moe.aoramd.raindrop.repository.model.RaindropMusicModel
 import moe.aoramd.raindrop.repository.source.MusicSource
 import moe.aoramd.lookinglass.manager.ContextManager
-import moe.aoramd.raindrop.repository.entity.SearchResult
+import moe.aoramd.raindrop.repository.entity.*
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -51,10 +49,6 @@ object RaindropRepository {
 
     private fun downloadedFileName(song: Song): String =
         "$downloadPath/${song.authorsName} - ${song.name}.mp3"
-
-    fun resourceString(resId: Int): String = ContextManager.resourceString(resId)
-
-    fun resourceColor(resId: Int): Int = ContextManager.resourceColor(resId)
 
     fun login(
         scope: CoroutineScope,
@@ -189,57 +183,6 @@ object RaindropRepository {
         }
     }
 
-    private fun loadOnlineUrl(
-        scope: CoroutineScope,
-        songId: Long,
-        bitRate: Int,
-        success: (url: String) -> Unit,
-        error: (errorMsg: String) -> Unit = {},
-        complete: () -> Unit = {}
-    ) = scope.launch(Dispatchers.IO) {
-        val url = source.loadUrl(songId, bitRate)
-        withContext(Dispatchers.Main) {
-            if (url == Tags.UNKNOWN_TAG)
-                error.invoke(MusicSource.EVENT_NETWORK_ERROR)
-            else
-                success.invoke(url)
-            complete.invoke()
-        }
-
-        // cache song
-        cacheSong(scope, songId)
-    }
-
-    private fun cacheSong(
-        scope: CoroutineScope,
-        songId: Long,
-        bitRate: Int = 320000,
-        success: () -> Unit = {},
-        error: (errorMsg: String) -> Unit = {}
-    ) = scope.launch(Dispatchers.IO) {
-        val cacheDirectory = File("$cacheRootPath${source.downloadPath}").apply {
-            if (!exists()) mkdir()
-        }
-        val cache = DiskLruCache.open(cacheDirectory, 1, 1, cacheSize)
-        val editor = cache.edit(songId.toString())
-        editor?.apply {
-            val stream = newOutputStream(0)
-            val errorMsg = source.downloadSong(songId, bitRate, stream)
-            if (errorMsg == null) {
-                commit()
-                withContext(Dispatchers.Main) {
-                    success.invoke()
-                }
-            } else {
-                abort()
-                withContext(Dispatchers.Main) {
-                    error.invoke(errorMsg)
-                }
-            }
-        }
-        cache.flush()
-    }
-
     fun downloadSong(
         scope: CoroutineScope,
         song: Song,
@@ -295,5 +238,75 @@ object RaindropRepository {
         else
             error.invoke(result.errorMsg)
         complete.invoke()
+    }
+
+    fun insertPlayRecord(
+        scope: CoroutineScope,
+        playRecord: PlayRecord
+    ) = scope.launch(Dispatchers.IO) {
+        model.insertPlayRecord(playRecord)
+    }
+
+    fun insertSong(
+        scope: CoroutineScope,
+        song: Song
+    ) = scope.launch(Dispatchers.IO) {
+        model.insertSong(song)
+    }
+
+    val playRecordSongsPagedList: DataSource.Factory<Int, Song>
+        get() = model.playRecordSongsPagedList
+
+    // Private Functions
+
+    private fun loadOnlineUrl(
+        scope: CoroutineScope,
+        songId: Long,
+        bitRate: Int,
+        success: (url: String) -> Unit,
+        error: (errorMsg: String) -> Unit = {},
+        complete: () -> Unit = {}
+    ) = scope.launch(Dispatchers.IO) {
+        val url = source.loadUrl(songId, bitRate)
+        withContext(Dispatchers.Main) {
+            if (url == Tags.UNKNOWN_TAG)
+                error.invoke(MusicSource.EVENT_NETWORK_ERROR)
+            else
+                success.invoke(url)
+            complete.invoke()
+        }
+
+        // cache song
+        cacheSong(scope, songId)
+    }
+
+    private fun cacheSong(
+        scope: CoroutineScope,
+        songId: Long,
+        bitRate: Int = 320000,
+        success: () -> Unit = {},
+        error: (errorMsg: String) -> Unit = {}
+    ) = scope.launch(Dispatchers.IO) {
+        val cacheDirectory = File("$cacheRootPath${source.downloadPath}").apply {
+            if (!exists()) mkdir()
+        }
+        val cache = DiskLruCache.open(cacheDirectory, 1, 1, cacheSize)
+        val editor = cache.edit(songId.toString())
+        editor?.apply {
+            val stream = newOutputStream(0)
+            val errorMsg = source.downloadSong(songId, bitRate, stream)
+            if (errorMsg == null) {
+                commit()
+                withContext(Dispatchers.Main) {
+                    success.invoke()
+                }
+            } else {
+                abort()
+                withContext(Dispatchers.Main) {
+                    error.invoke(errorMsg)
+                }
+            }
+        }
+        cache.flush()
     }
 }

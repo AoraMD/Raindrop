@@ -10,14 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import moe.aoramd.raindrop.R
-import moe.aoramd.raindrop.adapter.binding.BindingBaseAdapter
-import moe.aoramd.raindrop.adapter.list.PlayPlayingAdapter
+import moe.aoramd.raindrop.view.base.binding.BindingBaseAdapter
 import moe.aoramd.raindrop.databinding.ActivityPlayBinding
 import moe.aoramd.raindrop.service.PlayService
-import moe.aoramd.raindrop.view.base.bind.PlayerBindActivity
-import moe.aoramd.raindrop.view.base.bind.PlayerBindViewModel
+import moe.aoramd.raindrop.view.base.player.PlayerControlActivity
+import moe.aoramd.raindrop.view.base.player.PlayerControlViewModel
 
-class PlayActivity : PlayerBindActivity() {
+class PlayActivity : PlayerControlActivity() {
 
     companion object {
         fun start(activity: FragmentActivity) {
@@ -29,7 +28,7 @@ class PlayActivity : PlayerBindActivity() {
     private lateinit var binding: ActivityPlayBinding
 
     private val viewModel: PlayViewModel by viewModels()
-    override val binder: PlayerBindViewModel by lazy { viewModel }
+    override val playerController: PlayerControlViewModel by lazy { viewModel }
 
 
     // Override Functions
@@ -55,10 +54,12 @@ class PlayActivity : PlayerBindActivity() {
     }
 
     // Click Listener
-    val rootClickListener = object : BindingBaseAdapter.IndexClickListener {
-        override fun onClick(view: View, index: Int) {
-            viewModel.selectSong(index)
-        }
+    internal val rootClickListener: (index: Int) -> Unit = { index ->
+        viewModel.selectSong(index)
+    }
+
+    internal val operationClickListener: (view: View, index: Int) -> Unit = { view, index ->
+        // todo not implement
     }
 
     // Event Operations

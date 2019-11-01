@@ -1,4 +1,4 @@
-package moe.aoramd.raindrop.adapter.binding
+package moe.aoramd.raindrop.view.base.binding
 
 import android.animation.ObjectAnimator
 import android.graphics.Bitmap
@@ -19,11 +19,6 @@ import moe.aoramd.raindrop.repository.Tags
 import java.lang.Exception
 
 object BindingBaseAdapter {
-
-    @FunctionalInterface
-    interface IndexClickListener {
-        fun onClick(view: View, index: Int)
-    }
 
     interface LoadImageUrlCallback {
         fun onComplete(bitmap: Bitmap?)

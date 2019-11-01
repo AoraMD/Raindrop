@@ -23,11 +23,17 @@ data class Song(
                 builder.toString()
             } else "No Author"
 
-
     companion object {
         val unknown = Song(
             Tags.UNKNOWN_ID,
             Tags.UNKNOWN_TAG,
+            listOf(),
+            Album.unknown
+        )
+
+        val loading = Song(
+            Tags.LOADING_ID,
+            Tags.LOADING_TAG,
             listOf(),
             Album.unknown
         )

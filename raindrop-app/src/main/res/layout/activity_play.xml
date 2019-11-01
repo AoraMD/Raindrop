@@ -9,7 +9,7 @@
 
         <variable
             name="adapter"
-            type="moe.aoramd.raindrop.adapter.list.PlayPlayingAdapter" />
+            type="moe.aoramd.raindrop.view.play.PlayPlayingAdapter" />
 
         <variable
             name="layoutManager"

@@ -7,10 +7,9 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import moe.aoramd.raindrop.R
-import moe.aoramd.raindrop.adapter.list.MainPagerAdapter
 import moe.aoramd.raindrop.databinding.ActivityMainBinding
-import moe.aoramd.raindrop.view.base.control.BarControlActivity
-import moe.aoramd.raindrop.view.base.control.BarControlViewModel
+import moe.aoramd.raindrop.view.base.bar.BarControlActivity
+import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
 import moe.aoramd.raindrop.view.search.SearchHostActivity
 
 class MainActivity : BarControlActivity() {

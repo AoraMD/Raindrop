@@ -11,6 +11,9 @@ interface AlbumDao {
     @Query("SELECT * FROM album WHERE id IN (:ids)")
     suspend fun queryAll(ids: List<Long>): List<Album>
 
+    @Query("SELECT * FROM album WHERE id = :id LIMIT 1")
+    suspend fun query(id: Long): Album?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(albums: List<Album>)
 }

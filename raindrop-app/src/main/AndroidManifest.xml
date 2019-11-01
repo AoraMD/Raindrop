@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.search.SearchHostActivity"></activity>
+        <activity android:name=".view.recent.RecentActivity"></activity>
+        <activity android:name=".view.search.SearchHostActivity" />
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>

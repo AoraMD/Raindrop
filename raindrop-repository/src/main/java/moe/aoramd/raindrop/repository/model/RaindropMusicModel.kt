@@ -1,5 +1,9 @@
 package moe.aoramd.raindrop.repository.model
 
+import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import kotlinx.coroutines.*
 import moe.aoramd.raindrop.repository.entity.*
 import moe.aoramd.raindrop.repository.model.database.ModelDatabase
@@ -23,6 +27,10 @@ object RaindropMusicModel : MusicModel {
 
     private val authorDao by lazy {
         ModelDatabase.instance.authorDao()
+    }
+
+    private val playRecordDao by lazy {
+        ModelDatabase.instance.playRecordDao()
     }
 
     private val songMetaDao by lazy {
@@ -110,5 +118,35 @@ object RaindropMusicModel : MusicModel {
             val authors = mutableListOf<Author>()
             songs.map { authors.addAll(it.authors) }
             authorDao.insertAll(authors)
+        }
+
+    override suspend fun insertSong(song: Song) =
+        withContext(Dispatchers.IO) {
+            songMetaDao.insert(
+                SongMeta(
+                    song.id,
+                    song.name,
+                    song.authors.map { author -> author.id },
+                    song.album.id
+                )
+            )
+        }
+
+    override suspend fun insertPlayRecord(playRecord: PlayRecord) =
+        withContext(Dispatchers.IO) {
+            playRecordDao.insert(playRecord)
+        }
+
+    override val playRecordSongsPagedList: DataSource.Factory<Int, Song>
+        get() = playRecordDao.queryAll().map {
+            runBlocking {
+                Song(
+                    it.id,
+                    it.name,
+                    authorDao.queryAll(it.authors),
+                    albumDao.query(it.album) ?: Album.unknown
+                )
+            }
+
         }
 }

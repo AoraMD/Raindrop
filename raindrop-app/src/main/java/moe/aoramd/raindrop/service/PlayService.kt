@@ -29,8 +29,10 @@ import moe.aoramd.lookinglass.manager.ContextManager
 import moe.aoramd.raindrop.manager.NotifyManager
 import moe.aoramd.raindrop.player.MusicPlayer
 import moe.aoramd.raindrop.player.Player
+import moe.aoramd.raindrop.repository.entity.PlayRecord
 import moe.aoramd.raindrop.service.mode.*
 import java.lang.Exception
+import java.util.*
 
 class PlayService : Service() {
 
@@ -78,7 +80,17 @@ class PlayService : Service() {
         }
 
         preparedListener = {
-            updateMetadataAsync(playingList[playingIndex].album.coverUrl)
+
+            val song = playingList[playingIndex]
+
+            // Insert Play Record
+            val playRecord = PlayRecord(Calendar.getInstance().timeInMillis, song.id)
+            RaindropRepository.apply {
+                insertSong(scope, song)
+                insertPlayRecord(scope, playRecord)
+            }
+
+            updateMetadataAsync(song.album.coverUrl)
         }
 
         completedListener = {

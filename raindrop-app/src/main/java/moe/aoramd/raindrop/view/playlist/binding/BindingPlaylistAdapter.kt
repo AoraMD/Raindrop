@@ -1,8 +1,8 @@
-package moe.aoramd.raindrop.adapter.binding
+package moe.aoramd.raindrop.view.playlist.binding
 
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import moe.aoramd.raindrop.adapter.list.PlaylistAdapter
+import moe.aoramd.raindrop.view.playlist.PlaylistAdapter
 import moe.aoramd.raindrop.repository.entity.Song
 
 object BindingPlaylistAdapter {

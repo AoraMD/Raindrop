@@ -9,7 +9,7 @@
 
         <variable
             name="controller"
-            type="moe.aoramd.raindrop.view.base.control.BarControlViewModel" />
+            type="moe.aoramd.raindrop.view.base.bar.BarControlViewModel" />
 
         <variable
             name="longClickListener"

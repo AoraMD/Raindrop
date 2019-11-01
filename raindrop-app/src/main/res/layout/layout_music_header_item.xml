@@ -7,7 +7,11 @@
 
         <variable
             name="header"
-            type="moe.aoramd.raindrop.adapter.list.MusicAdapter.Companion.MusicHeader" />
+            type="moe.aoramd.raindrop.view.music.MusicAdapter.Companion.MusicHeader" />
+
+        <variable
+            name="rootClickListener"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -22,6 +26,7 @@
             android:layout_height="wrap_content"
             android:background="?selectableItemBackground"
             android:gravity="center_vertical"
+            android:onClick="@{rootClickListener}"
             android:padding="16dp">
 
             <ImageView
@@ -46,14 +51,6 @@
                     android:text="@{header.title}"
                     android:textColor="?android:textColorPrimary"
                     tools:text="Local Music" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{String.valueOf(header.trackCount)}"
-                    android:textColor="?android:textColorSecondary"
-                    android:textSize="12sp"
-                    tools:text="1" />
 
             </LinearLayout>
 

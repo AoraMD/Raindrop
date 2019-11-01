@@ -1,8 +1,7 @@
 package moe.aoramd.raindrop.repository.model
 
-import moe.aoramd.raindrop.repository.entity.Account
-import moe.aoramd.raindrop.repository.entity.Playlist
-import moe.aoramd.raindrop.repository.entity.Song
+import androidx.paging.DataSource
+import moe.aoramd.raindrop.repository.entity.*
 
 interface MusicModel {
 
@@ -17,4 +16,10 @@ interface MusicModel {
     suspend fun loadSongs(playlistId: Long): List<Song>
 
     suspend fun updateSongs(playlistId: Long, songs: List<Song>)
+
+    suspend fun insertSong(song: Song)
+
+    suspend fun insertPlayRecord(playRecord: PlayRecord)
+
+    val playRecordSongsPagedList: DataSource.Factory<Int, Song>
 }
