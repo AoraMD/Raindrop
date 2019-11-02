@@ -5,6 +5,10 @@
         android:title="@string/play_as_next" />
 
     <item
+        android:id="@+id/playlist_item_popup_add_to_playlist"
+        android:title="@string/add_to_playlist" />
+
+    <item
         android:id="@+id/playlist_item_popup_download"
         android:title="@string/download" />
 

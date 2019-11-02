@@ -9,4 +9,6 @@
     <color name="MusicProgressBarPlayColor">#bbdefb</color>
     <color name="MusicProgressBarBufferColor">#e3f2fd</color>
     <color name="MusicProgressBarBackColor">#ffffff</color>
+
+    <color name="swipeToDeleteBackgroundColor">#e57373</color>
 </resources>

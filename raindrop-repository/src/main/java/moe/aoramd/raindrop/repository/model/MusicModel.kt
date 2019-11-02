@@ -21,5 +21,7 @@ interface MusicModel {
 
     suspend fun insertPlayRecord(playRecord: PlayRecord)
 
+    suspend fun removePlayRecord(songId: Long)
+
     val playRecordSongsPagedList: DataSource.Factory<Int, Song>
 }

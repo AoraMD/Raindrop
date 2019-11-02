@@ -78,7 +78,7 @@ class SearchListFragment(keywords: String) : Fragment() {
                         if (activityViewModel.playAsNext(song))
                             PlayActivity.start(activity!!)
                     }
-                    R.id.search_item_popup_add_to_playlist -> {
+                    R.id.playlist_item_popup_add_to_playlist -> {
                         // todo not implement
                     }
                     R.id.search_item_popup_download -> {

@@ -1,6 +1,7 @@
 package moe.aoramd.raindrop.view.recent
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import moe.aoramd.raindrop.repository.RaindropRepository
@@ -27,5 +28,10 @@ class RecentViewModel : BarControlViewModel() {
 
     init {
         songs = LivePagedListBuilder(factory, pagedListConfig).build()
+    }
+
+    internal fun removeRecentIndex(index: Int) {
+        val songId = songs.value?.get(index)?.id ?: 0
+        RaindropRepository.removePlayRecord(viewModelScope, songId)
     }
 }

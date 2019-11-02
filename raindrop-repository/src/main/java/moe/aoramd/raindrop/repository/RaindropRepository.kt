@@ -240,6 +240,13 @@ object RaindropRepository {
         complete.invoke()
     }
 
+    fun insertSong(
+        scope: CoroutineScope,
+        song: Song
+    ) = scope.launch(Dispatchers.IO) {
+        model.insertSong(song)
+    }
+
     fun insertPlayRecord(
         scope: CoroutineScope,
         playRecord: PlayRecord
@@ -247,11 +254,11 @@ object RaindropRepository {
         model.insertPlayRecord(playRecord)
     }
 
-    fun insertSong(
+    fun removePlayRecord(
         scope: CoroutineScope,
-        song: Song
+        songId: Long
     ) = scope.launch(Dispatchers.IO) {
-        model.insertSong(song)
+        model.removePlayRecord(songId)
     }
 
     val playRecordSongsPagedList: DataSource.Factory<Int, Song>

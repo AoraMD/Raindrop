@@ -7,12 +7,14 @@ import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import moe.aoramd.raindrop.R
 import moe.aoramd.raindrop.databinding.ActivityRecentBinding
 import moe.aoramd.raindrop.repository.entity.Song
 import moe.aoramd.raindrop.view.base.bar.BarControlActivity
 import moe.aoramd.raindrop.view.base.bar.BarControlViewModel
+import moe.aoramd.raindrop.view.base.list.SwipeToDeleteCallback
 
 /**
  *  recent interface activity
@@ -34,6 +36,14 @@ class RecentActivity : BarControlActivity() {
 
     private val adapter = RecentAdapter(this)
 
+    // recent list swipe to delete
+    private val swipeListener: (index: Int) -> Unit = { index ->
+        viewModel.removeRecentIndex(index)
+    }
+
+    private val swipeHandler = SwipeToDeleteCallback(swipeListener)
+    private val itemTouchHelper = ItemTouchHelper(swipeHandler)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_recent)
@@ -48,6 +58,7 @@ class RecentActivity : BarControlActivity() {
             adapter = this@RecentActivity.adapter
             layoutManager =
                 LinearLayoutManager(this@RecentActivity, LinearLayoutManager.VERTICAL, false)
+            itemTouchHelper.attachToRecyclerView(list)
         }
 
         // paged list data

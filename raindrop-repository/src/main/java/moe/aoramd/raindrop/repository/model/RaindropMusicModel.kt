@@ -137,6 +137,11 @@ object RaindropMusicModel : MusicModel {
             playRecordDao.insert(playRecord)
         }
 
+    override suspend fun removePlayRecord(songId: Long) =
+        withContext(Dispatchers.IO) {
+            playRecordDao.delete(songId)
+        }
+
     override val playRecordSongsPagedList: DataSource.Factory<Int, Song>
         get() = playRecordDao.queryAll().map {
             runBlocking {
